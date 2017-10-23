@@ -31,8 +31,8 @@ spotifyEventListener.on("spotify_done", function (data) {
     // process data when someEvent occurs
     firstSong = true;
 });
-
-const SPOTIFY_TOKEN = "Bearer " + process.env.SPOTIFY_TOKEN
+console.log("proce", process.env.SPOTIFY_TOKEN);
+const SPOTIFY_TOKEN = "Bearer " + "BQDQrytplt7Xm1k3EPCnIjAxM9X5kw41AipNPZx3hvfzVMPLN034XeXMv2hSUcCCju6s8Oe1rJZjeiiEMbxYSRg521Fgof39rUswlojstANziT3LKv6FliyNDbowAZex5myVsfDcVbr2-SBIO8mxrPWgAVNC5HZHApZcl4YJUMcRlAQsrhfMUlMeK49aGqOl3QV4zBxFeE_CG2JY96yqexa309nPPHTB-J1C7TSudwQZaDYBDRmmzykF7Wve3xV0UYOkfkEVjEgZfQ2IYL3LDulnQc_vIDbsNi0-9y8j64B1bEhd8n3iKi8PuQpXkvLYkkZLgfFaYFnZ3cbJfs3XhZ-7wQ"
 
 app.use(express.static(path.join(__dirname, 'public')));
 

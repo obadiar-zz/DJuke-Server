@@ -182,3 +182,13 @@ body {
   margin-right: 30px;
   margin-bottom: 30px;
 }
+
+.spotify-login {
+  text-align: center;
+  background: black;
+  padding: 10px;
+  border-radius: 4px;
+  color: white;
+  text-decoration: none;
+  font-family: 'Roboto';
+}

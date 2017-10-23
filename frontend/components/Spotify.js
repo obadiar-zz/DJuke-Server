@@ -23,6 +23,7 @@ class Spotify extends React.Component {
   }
 
   componentWillMount() {
+    console.log("WHAT", this.props.spotify);
     fetch('http://localhost:8228/registerHostSpotify?token=' + this.props.spotify.token, {
       method: 'get',
     })

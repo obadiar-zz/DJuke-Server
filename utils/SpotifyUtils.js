@@ -147,7 +147,7 @@ function addTrackToPlaylist(userID, playlistID, client_token, songURI) {
   var user_id = userID;
   var playlist_id = playlistID
   var playlist_uri = "spotify:user:"+userID+":playlist:"+playlistID;
-  console.log("FOUND!");
+  console.log("FOUND!", user_id);
   var options = {
     url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
     headers: {
@@ -257,9 +257,6 @@ function SpotifyUserInitialization(client_token, res) {
       json: true
     };
     request.get(options, function (error, response, body) {
-      console.log("body", body);
-      console.log("resp", response);
-      console.log("ERORR", error);
       var data = body.items.filter(x => x.name === "djukeio");
       if (data.length === 1) {
         var playlist_id = data[0].id;
@@ -346,6 +343,7 @@ function SpotifyUserInitialization(client_token, res) {
 }
 
 function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expected_uri, res) {
+  console.log("client token", client_token);
   var options = {
     url: 'https://api.spotify.com/v1/me/player',
     headers: {
@@ -354,9 +352,9 @@ function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expe
     json: true
   };
   request.get(options, function (error, response, body) {
-    console.log("ERR", error);
-    console.log("resp", response);
-    console.log("body", body);
+     console.log("what", body);
+    console.log("expected_uri", expected_uri);
+    console.log("body context", body.context.uri);
     if(body.context.uri === expected_uri){
         res.json({ confirm_status:  true});
       } else{

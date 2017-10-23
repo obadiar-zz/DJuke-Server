@@ -14,6 +14,9 @@ class Body extends React.Component {
           <Spotify />
           <Soundcloud />
         </div>
+        <div>
+          <a className="spotify-login" href="/auth/spotify" style={{display: 'inline-block'}}><i className="fa fa-spotify" aria-hidden="true"></i> Log in with Spotify</a>
+        </div>
         <Queue />
       </div>
     );
