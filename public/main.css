@@ -1,0 +1,184 @@
+body {
+  font: 'Roboto';
+  animation-name: colors;
+  animation-duration: 10s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes colors {
+  0% {
+    background-color: #2196F3;
+  }
+  25% {
+    background-color: #BBDEFB;
+  }
+  75% {
+    background-color: #000080;
+  }
+  100% {
+    background-color: #2196F3;
+  }
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: column;
+}
+
+.card {
+  flex: 1;
+  margin: 30px;
+  margin-top: 80px;
+}
+
+.song {
+  display: flex;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  justify-content: space-between;
+}
+
+.ugh {
+  display: flex;
+}
+
+.clients {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.artist-container {
+  margin-top: 9px;
+  display: flex;
+  /*justify-content: center;*/
+  flex-direction: column;
+}
+
+.payment-container {
+  margin-top: 9px;
+  display: flex;
+  flex-direction: column;
+}
+
+.upvote-container {
+  margin-top: 9px;
+  margin-right: 9px;
+  display: flex;
+  align-items: center;
+}
+
+.title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+}
+
+.artist {
+  color: rgba(0, 0, 0, 0.54);
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+}
+
+.likes {
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.likes:hover {
+  font-size: 200%;
+}
+
+@keyframes jigs {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.song:hover {
+  animation-name: jigs;
+  -webkit-animation-name: jigs;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+.spacer {
+  width: 50px;
+}
+
+.testItemRight {
+  align-self: flex-end;
+  flex: 1;
+}
+
+.testItemLeft {
+  align-self: flex-start;
+  flex: 1;
+}
+
+.widget {
+  margin-left: 9px;
+  border-radius: 2px;
+  height: 80px;
+  width: 300px;
+}
+
+.thumbnail {
+  margin: 9px;
+  border-radius: 2px;
+  height: 80px;
+  width: 80px;
+  align-self: flex-start;
+  border: 1px solid black;
+}
+
+.like-img {
+  margin: 9px;
+  border-radius: 2px;
+  height: 35px;
+  width: 35px;
+}
+
+.logo {
+  /*margin-right: 11px;*/
+  height: 55px;
+}
+
+.queue {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-direction: column;
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-bottom: 30px;
+}

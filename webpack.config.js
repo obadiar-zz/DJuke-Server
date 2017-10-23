@@ -3,7 +3,7 @@ const path = require('path');
 
 module.exports = {
     entry: [
-        './frontend/index'
+        './frontend/app'
     ],
     module: {
         rules: [

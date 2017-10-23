@@ -1,3 +1,0 @@
-export const SPOTIFY_MOUNT = 'SPOTIFY_MOUNT'
-export const SPOTIFY_CONFIRM = 'SPOTIFY_CONFIRM'
-export const UPDATE_QUEUE = 'UPDATE_QUEUE'
