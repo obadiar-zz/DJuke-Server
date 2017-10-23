@@ -1,4 +1,5 @@
-var request = require('request'); // "Request" library
+var axios = require('axios'); // "Request" library
+var request = require('request')
 
 var client_id = process.env.client_id; // Your client id
 var client_secret = process.env.client_secret; // Your secret
@@ -18,331 +19,222 @@ var authOptions = {
 };
 
 function pauseSong(client_token) {
-  var options = {
+  return axios({
     url: 'https://api.spotify.com/v1/me/player/pause',
+    method: "put",
     headers: {
       Authorization: client_token
     },
     json: true
-  };
-  request.put(options, function (error, response, body) {
-    console.log(body);
-  });
+  })
 }
 
 function playSong(client_token) {
-  var options = {
+  return axios({
     url: 'https://api.spotify.com/v1/me/player/play',
+    method: "put",
     headers: {
       Authorization: client_token
     },
     json: true
-  };
-  request.put(options, function (error, response, body) {
-    console.log("Song playing");
-    //res.send("Success, song playing!");
-  });
+  })
 }
 
 function nextSong(client_token) {
-  var options = {
+  return axios({
     url: 'https://api.spotify.com/v1/me/player/next',
+    method: "post",
     headers: {
       Authorization: client_token
     },
     json: true
-  };
-  request.post(options, function (error, response, body) {
-    console.log(body);
-  });
+  })
 }
 
-function prevSong(client_token) {
-  var options = {
-    url: 'https://api.spotify.com/v1/me/player/previous',
+function getUserInfo(client_token) {
+  return axios({
+      url: 'https://api.spotify.com/v1/me',
+    method: 'get',
     headers: {
       Authorization: client_token
     },
     json: true
-  };
-  request.post(options, function (error, response, body) {
-    console.log(body);
-  });
+  })
 }
 
-function seekSong(client_token, seconds_position) {
-  seconds_position = seconds_position * 1000
-  var options = {
-    url: 'https://api.spotify.com/v1/me/player/seek?position_ms=' + seconds_position,
+function getUserPlaylists(client_token, response) {
+  var user_id = response.data.id;
+  return axios({
+    url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists',
+    method: 'get',
     headers: {
       Authorization: client_token
     },
     json: true
-  };
-  request.put(options, function (error, response, body) {
-    console.log(body);
-  });
-}
-
-function getPlayerInfo(client_token) {
-  var options = {
-    url: 'https://api.spotify.com/v1/me/player',
-    headers: {
-      Authorization: client_token
-    },
-    json: true
-  };
-  request.get(options, function (error, response, body) {
-    console.log(body);
-  });
-}
-
-function getClientInfo(client_token) {
-  var options = {
-    url: 'https://api.spotify.com/v1/me',
-    headers: {
-      Authorization: client_token
-    },
-    json: true
-  };
-  request.get(options, function (error, response, body) {
-    console.log(body);
-  });
-}
-
-function getClientPlaylists(client_token) {
-  var options = {
-    url: '	https://api.spotify.com/v1/users/' + clientID + '/playlists',
-    headers: {
-      Authorization: client_token
-    },
-    json: true
-  };
-  request.get(options, function (error, response, body) {
-    console.log(body);
-    var data = body.items.reduce((flag, x) => x.name === "djukeio" ? true : flag, false);
-    console.log(data);
-  });
-}
-
-function createPlaylist(client_token) {
-  var options = {
-    url: '	https://api.spotify.com/v1/users/' + clientID + '/playlists',
-    headers: {
-      Authorization: client_token
-    },
-    json: true,
-    body: {
-      "description": "DJuke.io, how jukebox's should be.",
-      "public": true,
-      "name": "djukeio"
-    }
-  };
-  request.post(options, function (error, response, body) {
-    console.log(body);
-  });
+  })
 }
 
 function addTrackToPlaylist(userID, playlistID, client_token, songURI) {
   var user_id = userID;
   var playlist_id = playlistID
   var playlist_uri = "spotify:user:"+userID+":playlist:"+playlistID;
-  console.log("FOUND!");
-  var options = {
+
+  axios({
     url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-    headers: {
-      Authorization: client_token
-    }
-  };
-  request.get(options, function (error, response, body) {
-    var toDelete = JSON.parse(body).items.map((x, i) => x.track.uri);
-    var options = {
-      url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-      headers: {
-        Authorization: client_token
-      },
-      json: true,
-      body: {
-        tracks: toDelete.map((x, i) => ({
-          "position": i,
-          "uri": x
-        }))
-      }
-    };
-    request.delete(options, function (error, response, body) {
-
-  var options = {
-    url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks?uris=' + songURI,
-    headers: {
-      Authorization: client_token
-    }
-  };
-  request.post(options, function (error, response, body) {
-    var options = {
-      url: 'https://api.spotify.com/v1/me/player/next',
-      headers: {
-        Authorization: client_token
-      },
-      json: true
-    };
-    request.post(options, function (error, response, body) {
-      var options = {
-        url: 'https://api.spotify.com/v1/me/player/play',
-        headers: {
-          Authorization: client_token
-        },
-        json: true
-      };
-      request.put(options, function (error, response, body) {
-        console.log("Song playing");
-        //res.send("Success, song playing!");
-      });
-    });
-  });
-  });
-    });
-}
-
-
-
-function addTrackToPlaylistFIRST(userID, playlistID, client_token, songURI) {
-  var user_id = userID;
-  var playlist_id = playlistID
-  var playlist_uri = "spotify:user:"+userID+":playlist:"+playlistID;
-  var options = {
-    url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks?uris=' + songURI,
-    headers: {
-      Authorization: client_token
-    }
-  };
-  request.post(options, function (error, response, body) {
-    var options = {
-      url: 'https://api.spotify.com/v1/me/player/next',
-      headers: {
-        Authorization: client_token
-      },
-      json: true
-    };
-    request.post(options, function (error, response, body) {
-      var options = {
-        url: 'https://api.spotify.com/v1/me/player/play',
-        headers: {
-          Authorization: client_token
-        },
-        json: true
-      };
-      request.put(options, function (error, response, body) {
-        console.log("Song playing");
-        //res.send("Success, song playing!");
-      });
-    });
-      });
-}
-
-function SpotifyUserInitialization(client_token, res) {
-  var options = {
-    url: 'https://api.spotify.com/v1/me',
+    method: 'get',
     headers: {
       Authorization: client_token
     },
     json: true
-  };
-  request.get(options, function (error, response, body) {
-    var user_id = body.id;
-    var options = {
-      url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists',
+  }).then( response => {
+    console.log("HEHRHRHRHRHR",response.data.items.map((x, i) => ({
+      "position": i,
+      "uri": x.track.uri
+    })));
+    return axios({
+      url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
+      method: 'delete',
+      headers: {
+        Authorization: client_token
+      },
+      json: true,
+      data: {
+        tracks: response.data.items.map((x, i) => ({
+          "position": i,
+          "uri": x.track.uri
+        }))
+      }
+    })
+  }).then( response => {
+    return axios({
+      url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks?uris=' + songURI,
+      method: 'post',
       headers: {
         Authorization: client_token
       },
       json: true
-    };
-    request.get(options, function (error, response, body) {
-      var data = body.items.filter(x => x.name === "djukeio");
-      if (data.length === 1) {
-        var playlist_id = data[0].id;
-        var playlist_uri = data[0].uri;
-        console.log("FOUND!");
-        var options = {
+    })
+  }).then( response => {
+    return axios({
+      url: 'https://api.spotify.com/v1/me/player/next',
+      method: 'post',
+      headers: {
+        Authorization: client_token
+      },
+      json: true
+    })
+  }).then( response => {
+    return axios({
+      url: 'https://api.spotify.com/v1/me/player/play',
+      method: 'put',
+      headers: {
+        Authorization: client_token
+      },
+      json: true
+    })
+  }).then( response => {
+    console.log("FINISHED");
+  })
+}
+
+function SpotifyUserInitialization(client_token, res) {
+  console.log("here");
+  getUserInfo(client_token)
+  .then( response => {
+    return getUserPlaylists(client_token, response);
+  })
+  .then( response => {
+    var data = response.data.items.filter(x => x.name === "djuke");
+    if (data.length >= 1) {
+      var playlist_id = data[0].id;
+      var playlist_uri = data[0].uri;
+      var user_id = playlist_uri.split(":")[2]
+      return axios({
+        url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
+        method: 'get',
+        headers: {
+          Authorization: client_token
+        },
+        json: true
+      }).then(response => {
+        var toDelete = response.data.items.map((x, i) => x.track.uri);
+        return axios({
           url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-          headers: {
-            Authorization: client_token
-          }
-        };
-        request.get(options, function (error, response, body) {
-          var toDelete = JSON.parse(body).items.map((x, i) => x.track.uri);
-          var options = {
-            url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-            headers: {
-              Authorization: client_token
-            },
-            json: true,
-            body: {
-              tracks: toDelete.map((x, i) => ({
-                "position": i,
-                "uri": x
-              }))
-            }
-          };
-          request.delete(options, function (error, response, body) {
-            console.log("PLAYLIST CLEARED!");
-            var options = {
-              url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + default_song_uri,
-              headers: {
-                Authorization: client_token
-              }
-            };
-            request.post(options, function (error, response, body) {
-              console.log("SONG ADDED");
-              console.log(playlist_uri);
-              res.json({
-                user: user_id,
-                playlist: playlist_id
-              });
-            });
-          });
-
-        });
-
-      } else {
-        var options = {
-          url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists',
+          method: 'delete',
           headers: {
             Authorization: client_token
           },
           json: true,
-          body: {
-            "description": "DJuke.io, how jukeboxes should be.",
-            "public": true,
-            "name": "djukeio"
+          data: {
+            tracks: toDelete.map((x, i) => ({
+              "position": i,
+              "uri": x
+            }))
           }
-        };
-        request.post(options, function (error, response, body) {
-          var playlist_id = body.id;
-          var playlist_uri = body.uri;
-          console.log(body);
-          console.log("CREATED!");
-          var options = {
-            url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + default_song_uri,
-            headers: {
-              Authorization: client_token
-            }
-          };
-          request.post(options, function (error, response, body) {
-            console.log("SONG ADDED");
-            console.log(playlist_uri);
-            res.json({
-              user: user_id,
-              playlist: playlist_id
-            });
+        })
+      }).then(response => {
+        console.log("PLAYLIST CLEARED!");
+        return axios({
+          url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + default_song_uri,
+          method: 'post',
+          headers: {
+            Authorization: client_token
+          },
+          json: true,
+          })
+        }).then( response => {
+          console.log("SONG ADDED");
+          console.log(playlist_uri);
+          return res.json({
+            user: user_id,
+            playlist: playlist_id
           });
-
-        });
-      }
-    });
+        }).catch( err =>
+        console.log("error", err.response))
+    } else {
+      var user_id = response.data.href.split("/")[5]
+      axios({
+        url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists',
+        method: 'post',
+        headers: {
+          Authorization: client_token
+        },
+        json: true,
+        data: {
+          "description": "DJuke.io, how jukeboxes should be.",
+          "public": true,
+          "name": "djuke"
+        }
+      }).then( response => {
+        console.log("CREATED!");
+        var playlist_id = response.data.id;
+        var playlist_uri = response.data.uri;
+        var user_id = playlist_uri.split(":")[2]
+        return axios({
+          url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + default_song_uri,
+          method: 'post',
+          headers: {
+            Authorization: client_token
+          },
+          json: true,
+          })
+        }).then( response => {
+          console.log("SONG ADDED");
+          console.log(response);
+          console.log(playlist_uri);
+          res.json({
+            user: user_id,
+            playlist: playlist_id
+          });
+        }).catch( err =>
+        console.log("error", err.response)
+      )
+    }
   });
 }
 
 function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expected_uri, res) {
+
   var options = {
     url: 'https://api.spotify.com/v1/me/player',
     headers: {
@@ -354,6 +246,8 @@ function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expe
     if(body.context.uri === expected_uri){
         res.json({ confirm_status:  true});
       } else{
+        console.log(expected_uri );
+        console.log(body.context);
       res.json({ confirm_status:  false});
     }
 
@@ -362,7 +256,6 @@ function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expe
 
 function getSongInfo(client_token, song_id, cb) {
   console.log(client_token);
-  console.log("FFUUUCCCCCJKKKK");
   var options = {
     url: "https://api.spotify.com/v1/tracks/" + song_id,
     headers: {
@@ -389,19 +282,10 @@ function msToMinutes(ms) {
 }
 
 module.exports = {
-  pauseSong,
-  playSong,
-  nextSong,
-  prevSong,
-  seekSong,
-  getPlayerInfo,
-  getClientInfo,
-  getClientPlaylists,
-  createPlaylist,
+
   addTrackToPlaylist,
   SpotifyUserInitialization,
   confirmExpectedPlaylistPlaying,
   getSongInfo,
   msToMinutes,
-  addTrackToPlaylistFIRST
 }
