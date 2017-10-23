@@ -257,6 +257,9 @@ function SpotifyUserInitialization(client_token, res) {
       json: true
     };
     request.get(options, function (error, response, body) {
+      console.log("body", body);
+      console.log("resp", response);
+      console.log("ERORR", error);
       var data = body.items.filter(x => x.name === "djukeio");
       if (data.length === 1) {
         var playlist_id = data[0].id;
@@ -351,6 +354,9 @@ function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expe
     json: true
   };
   request.get(options, function (error, response, body) {
+    console.log("ERR", error);
+    console.log("resp", response);
+    console.log("body", body);
     if(body.context.uri === expected_uri){
         res.json({ confirm_status:  true});
       } else{
