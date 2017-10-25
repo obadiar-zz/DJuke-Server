@@ -34,6 +34,10 @@
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
     "react-modal": "^3.0.4",
+<<<<<<< HEAD
+=======
+    "react-model": "0.0.0",
+>>>>>>> rob_dangerous
     "react-redux": "^5.0.5",
     "react-router-redux": "^4.0.8",
     "redux": "^3.7.2",
@@ -48,6 +52,7 @@
     "webpack": "^2.3.3"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-eslint": "^7.2.2",
     "concurrently": "^3.5.0",
     "eslint": "^3.19.0",

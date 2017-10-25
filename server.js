@@ -14,6 +14,7 @@ const spotifyEventListener = require('./backend/spotifyRoutes').eventListener;
 var localStorage = require('localStorage');
 
 var firstSong = true;
+var g_socket;
 
 spotifyEventListener.on("nextSong_Spotify", function (data) {
     // process data when someEvent occurs
@@ -32,7 +33,11 @@ spotifyEventListener.on("spotify_done", function (data) {
     firstSong = true;
 });
 
+<<<<<<< HEAD
 const SPOTIFY_TOKEN = "Bearer " + process.env.SPOTIFY_TOKEN
+=======
+const SPOTIFY_TOKEN = "Bearer BQDSt2hftHVqQGAdLuOUq8fPUbGSakXF3bSeVQMWvNnprbJdjbO6Sb_C78yBRG-5WUNwCkEnjOEgpf1YS56vnEEJKk3ahmcRCEr_0VFWGoOyLsGhlU0o3P0Y_bTer5UYy7g1sQosGN3KEYuIo8yRr5nux-LX67y0CMsbW_y834rCOc7yPlOSCZv7xntQGUrWIhMFYv-NJkoqnzcqxcpvK3kITlfqb6zjxclea3QJ7xDCofZwFiUDBFdJTw76VjJkq_F-CiUHjj3_wuqhFHPuOgfXcMUTNYempshYpyOYKtvZLWM9s42RgL-yhTwBS54QraxEO90"
+>>>>>>> rob_dangerous
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -53,19 +58,21 @@ app.use('/', routes);
 app.use('/', spotify);
 
 io.on('connection', function (socket) {
-
+    console.log("Connection made");
     g_socket = io;
 
     var id;
     socket.emit('QUEUE_UPDATED', SongQueue);
 
     socket.on('CONNECT', function () {
+        console.log("Connection heard");
         id = socket.id;
         socket.emit('SUCCESS', 'CONNECTED');
     });
 
     socket.on('ADD_SONG', function (data) {
         console.log("SONG ADDED");
+        console.log("EHEEHEHEHEHE");
         SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
         function callback(result) {
             var newSong = {

@@ -28,6 +28,7 @@ class Spotify extends React.Component {
     })
     .then(resp => resp.json())
     .then(resp => {
+      console.log("EHHEHEHEHEH", resp);
       this.props.onSpotifyMount(resp.user, resp.playlist)
     })
     .catch(error => {console.log(error)})
@@ -71,7 +72,7 @@ class Spotify extends React.Component {
           />
           <iframe
             className="widget"
-            src={"https://embed.spotify.com/?uri=spotify:user:" + this.props.spotify.user + ":playlist:" + this.props.spotify.playlist}
+            src={"https://open.spotify.com/embed?uri=spotify:user:" + this.props.spotify.user + ":playlist:" + this.props.spotify.playlist}
             frameBorder="0"
             allowTransparency="true"
           />
