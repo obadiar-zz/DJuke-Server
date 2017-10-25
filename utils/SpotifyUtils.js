@@ -1,22 +1,6 @@
 var axios = require('axios'); // "Request" library
 var request = require('request')
-
-var client_id = process.env.client_id; // Your client id
-var client_secret = process.env.client_secret; // Your secret
-
 var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
-
-// your application requests authorization
-var authOptions = {
-  url: 'https://accounts.spotify.com/api/token',
-  headers: {
-    'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-  },
-  form: {
-    grant_type: 'client_credentials'
-  },
-  json: true
-};
 
 function pauseSong(client_token) {
   return axios({
@@ -154,7 +138,6 @@ function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
 }
 
 function SpotifyUserInitialization(client_token, res) {
-
   // 1) Get user information
   getUserInfo(client_token)
 
@@ -215,7 +198,8 @@ function SpotifyUserInitialization(client_token, res) {
         console.log("error", err)
       );
     }
-  });
+  })
+  .catch( err => console.log(err))
 }
 
 function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expected_uri, res) {

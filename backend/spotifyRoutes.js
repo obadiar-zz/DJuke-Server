@@ -33,6 +33,7 @@ router.get("/registerHostSpotify", function(req, res){
   axios.post("https://rocky-brook-68243.herokuapp.com/register", {
       lan: ip.address()
   })
+  
   var token = "Bearer " + req.query.token;
   generic(token, res);
 })
