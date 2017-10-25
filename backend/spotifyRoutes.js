@@ -67,26 +67,20 @@ function addNextAndPlay(user_id, playlist_id, token, first){
       var playlist_id = spotifyData[user_id].playlist_id;
       var token = spotifyData[user_id].token;
       addNextAndPlay(user_id, playlist_id, token, false);
-    },(10)*1000)
+    },(3)*1000)
   }else{
-    console.log("+++++++++++++++++++++++++++==============+++++++++++++=====+++++===");
     var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
-    console.log("QUEUEUUEUEUUEUEUE", queue);
     var nextSong = queue.pop();
     // localStorage.setItem("currentlyPlaying", JSON.stringify(nextSong))
-
+    console.log("SONG UP NEXT!!!!! : ", nextSong);
     var song_uri = "spotify:track:"+nextSong.id;
-    console.log(queue, song_uri);
 
     eventListener.emit("nextSong_Spotify", {
       currentlyPlaying: nextSong,
       list: queue
     });
-    console.log("Queue before saving", queue);
     localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
     var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
-    console.log("QUEUEUUEUEUUEUEUE RESET", queue);
-    console.log("+++++++++++++++++++++++++++==============+++++++++++++=====+++++===");
     addTrack(user_id, playlist_id, token, song_uri)
 
     setTimeout(function(){
@@ -94,7 +88,7 @@ function addNextAndPlay(user_id, playlist_id, token, first){
       var playlist_id = spotifyData[user_id].playlist_id;
       var token = spotifyData[user_id].token;
       addNextAndPlay(user_id, playlist_id, token, false);
-    },(10)*1000)
+    },(45)*1000)
   }
 
 

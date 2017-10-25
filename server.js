@@ -33,7 +33,7 @@ spotifyEventListener.on("spotify_done", function (data) {
     firstSong = true;
 });
 
-const SPOTIFY_TOKEN = "Bearer BQB5jpoU4KTkjIqBeVb-QiOrMiUPQohsjGY8_cRrFBV1hdgXAphF07QCa6mChcVVxIJXCuQ5tWzwazYBtSYJYqzAtSs4Qazi-vMzttBCEC_Alhwk0qvUgDuPYFI3BHm9QXmHYZ6UKQQ04TV1F0n-IKejGAZYQQEYhcqVt9Z0NdoKeNwQk_bAKXivAlvFurKZZpdJ6UJhEXxvSYZ0gAZZ_zHdbwV5Pir6Zmapsz20peGqpStMf6Wv2sdFDyzj3y57J2vCqXvbcpnYdxbHE-GXnxKPliKLZE4K1HtRFWxXrtVLHsT-FO7fEheZMdvC4qfB1gX71AE"
+const SPOTIFY_TOKEN = "Bearer BQDSt2hftHVqQGAdLuOUq8fPUbGSakXF3bSeVQMWvNnprbJdjbO6Sb_C78yBRG-5WUNwCkEnjOEgpf1YS56vnEEJKk3ahmcRCEr_0VFWGoOyLsGhlU0o3P0Y_bTer5UYy7g1sQosGN3KEYuIo8yRr5nux-LX67y0CMsbW_y834rCOc7yPlOSCZv7xntQGUrWIhMFYv-NJkoqnzcqxcpvK3kITlfqb6zjxclea3QJ7xDCofZwFiUDBFdJTw76VjJkq_F-CiUHjj3_wuqhFHPuOgfXcMUTNYempshYpyOYKtvZLWM9s42RgL-yhTwBS54QraxEO90"
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -89,11 +89,8 @@ io.on('connection', function (socket) {
                 socket.emit('SUCCESS', 'SONG_ADDED');
             }
             SongQueue.sort();
-            console.log("+++++++++++============================================----------------------================++++++++++++");
             localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
-            console.log(localStorage.getItem("SongQueue"));
             io.emit('QUEUE_UPDATED', SongQueue);
-              console.log("+++++++++++============================================----------------------================++++++++++++");
             if (firstSong) {
                 spotifyFirstSong()
                 firstSong = false;

@@ -74,161 +74,146 @@ function getUserPlaylists(client_token, response) {
   })
 }
 
-function addTrackToPlaylist(userID, playlistID, client_token, songURI) {
-  var user_id = userID;
-  var playlist_id = playlistID
-  var playlist_uri = "spotify:user:"+userID+":playlist:"+playlistID;
-
-  axios({
+function getUserTracks(client_token, user_id, playlist_id) {
+  return axios({
     url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
     method: 'get',
     headers: {
       Authorization: client_token
     },
     json: true
-  }).then( response => {
-    console.log("HEHRHRHRHRHR",response.data.items.map((x, i) => ({
-      "position": i,
-      "uri": x.track.uri
-    })));
-    return axios({
-      url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-      method: 'delete',
-      headers: {
-        Authorization: client_token
-      },
-      json: true,
-      data: {
-        tracks: response.data.items.map((x, i) => ({
-          "position": i,
-          "uri": x.track.uri
-        }))
-      }
-    })
-  }).then( response => {
-    return axios({
-      url: 'https://api.spotify.com/v1/users/' + userID + '/playlists/' + playlistID + '/tracks?uris=' + songURI,
-      method: 'post',
-      headers: {
-        Authorization: client_token
-      },
-      json: true
-    })
-  }).then( response => {
-    return axios({
-      url: 'https://api.spotify.com/v1/me/player/next',
-      method: 'post',
-      headers: {
-        Authorization: client_token
-      },
-      json: true
-    })
-  }).then( response => {
-    return axios({
-      url: 'https://api.spotify.com/v1/me/player/play',
-      method: 'put',
-      headers: {
-        Authorization: client_token
-      },
-      json: true
-    })
-  }).then( response => {
-    console.log("FINISHED");
   })
 }
 
+function deleteTracks(client_token, user_id, playlist_id, tracksToDelete) {
+  return axios({
+    url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
+    method: 'delete',
+    headers: {
+      Authorization: client_token
+    },
+    json: true,
+    data: {
+      tracks: tracksToDelete.map((x, i) => ({
+        "position": i,
+        "uri": x
+      }))
+    }
+  })
+}
+
+function addTrack(client_token, user_id, playlist_id, songURI) {
+  return axios({
+    url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + songURI,
+    method: 'post',
+    headers: {
+      Authorization: client_token
+    },
+    json: true,
+    })
+}
+
+function createPlaylist(client_token, user_id, playlist_description, playlist_name) {
+  return axios({
+    url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists',
+    method: 'post',
+    headers: {
+      Authorization: client_token
+    },
+    json: true,
+    data: {
+      "description": playlist_description,
+      "public": true,
+      "name": playlist_name
+    }
+  })
+}
+
+function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
+  var playlist_uri = "spotify:user:"+user_id+":playlist:"+playlist_id;
+
+  // 1) Get all the tracks currently in the djuke playlist
+  // that need to be deleted.
+  getUserTracks(client_token, user_id, playlist_id)
+
+  // 2) Deletre all the songs found in the previous step.
+  .then( response => {
+    var toDelete = response.data.items.map((x, i) => x.track.uri);
+    return deleteTracks(client_token, user_id, playlist_id, toDelete);
+  })
+
+  // 3) Add the new song
+  .then( response => addTrack(client_token, user_id, playlist_id, songURI))
+
+  // 4) Call next song so that the playlist plays the new song
+  .then( response => nextSong(client_token))
+
+  // 5) Make sure that the new song is playing
+  .then( response => playSong(client_token))
+  .catch(err => console.log(err))
+}
+
 function SpotifyUserInitialization(client_token, res) {
-  console.log("here");
+
+  // 1) Get user information
   getUserInfo(client_token)
+
+  // 2) Get user's playlists
   .then( response => {
     return getUserPlaylists(client_token, response);
   })
   .then( response => {
+
+    // 3) Check to see if the user already has a djuke playlist
     var data = response.data.items.filter(x => x.name === "djuke");
     if (data.length >= 1) {
       var playlist_id = data[0].id;
       var playlist_uri = data[0].uri;
       var user_id = playlist_uri.split(":")[2]
-      return axios({
-        url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-        method: 'get',
-        headers: {
-          Authorization: client_token
-        },
-        json: true
-      }).then(response => {
+
+      // 4) Get the user's tracks, need to delete leftover tracks
+      getUserTracks(client_token, user_id, playlist_id)
+      .then(response => {
         var toDelete = response.data.items.map((x, i) => x.track.uri);
-        return axios({
-          url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks',
-          method: 'delete',
-          headers: {
-            Authorization: client_token
-          },
-          json: true,
-          data: {
-            tracks: toDelete.map((x, i) => ({
-              "position": i,
-              "uri": x
-            }))
-          }
-        })
+
+        // 5) Delete all the leftover tracks
+        return deleteTracks(client_token, user_id, playlist_id, toDelete);
       }).then(response => {
-        console.log("PLAYLIST CLEARED!");
-        return axios({
-          url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + default_song_uri,
-          method: 'post',
-          headers: {
-            Authorization: client_token
-          },
-          json: true,
-          })
+
+        // 6) Add Despicito as the start track
+        // Won't actually play this song, instead it is used
+        // for the user to switch to the right playlist queue.
+        return addTrack(client_token, user_id, playlist_id, default_song_uri);
         }).then( response => {
-          console.log("SONG ADDED");
-          console.log(playlist_uri);
-          return res.json({
-            user: user_id,
-            playlist: playlist_id
-          });
+
+          // 7) Return the user info so that it can be passed
+          // back later by the client.
+          res.json({ user: user_id, playlist: playlist_id });
         }).catch( err =>
-        console.log("error", err.response))
+        console.log("error", err))
     } else {
       var user_id = response.data.href.split("/")[5]
-      axios({
-        url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists',
-        method: 'post',
-        headers: {
-          Authorization: client_token
-        },
-        json: true,
-        data: {
-          "description": "DJuke.io, how jukeboxes should be.",
-          "public": true,
-          "name": "djuke"
-        }
-      }).then( response => {
-        console.log("CREATED!");
+
+      // 4) Create a new playlist called djuke
+      createPlaylist(client_token, user_id, "DJuke.io, how jukeboxes should be.", "djuke")
+      .then( response => {
         var playlist_id = response.data.id;
         var playlist_uri = response.data.uri;
         var user_id = playlist_uri.split(":")[2]
-        return axios({
-          url: 'https://api.spotify.com/v1/users/' + user_id + '/playlists/' + playlist_id + '/tracks?uris=' + default_song_uri,
-          method: 'post',
-          headers: {
-            Authorization: client_token
-          },
-          json: true,
-          })
-        }).then( response => {
-          console.log("SONG ADDED");
-          console.log(response);
-          console.log(playlist_uri);
-          res.json({
-            user: user_id,
-            playlist: playlist_id
-          });
-        }).catch( err =>
-        console.log("error", err.response)
-      )
+
+        // 5) Add Despicito as the start track
+        // Won't actually play this song, instead it is used
+        // for the user to switch to the right playlist queue.
+        return addTrack(client_token, user_id, playlist_id, default_song_uri);
+        })
+      .then( response => {
+          // 6) Return the user info so that it can be passed
+          // back later by the client.
+          res.json({ user: user_id, playlist: playlist_id });
+        })
+      .catch( err =>
+        console.log("error", err)
+      );
     }
   });
 }
