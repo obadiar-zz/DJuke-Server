@@ -28,16 +28,11 @@ spotifyEventListener.on("nextSong_Spotify", function (data) {
 });
 
 spotifyEventListener.on("spotify_done", function (data) {
-    console.log("EHEHEHHEHEHEHEH");
     // process data when someEvent occurs
     firstSong = true;
 });
 
-<<<<<<< HEAD
-const SPOTIFY_TOKEN = "Bearer " + process.env.SPOTIFY_TOKEN
-=======
-const SPOTIFY_TOKEN = "Bearer BQDSt2hftHVqQGAdLuOUq8fPUbGSakXF3bSeVQMWvNnprbJdjbO6Sb_C78yBRG-5WUNwCkEnjOEgpf1YS56vnEEJKk3ahmcRCEr_0VFWGoOyLsGhlU0o3P0Y_bTer5UYy7g1sQosGN3KEYuIo8yRr5nux-LX67y0CMsbW_y834rCOc7yPlOSCZv7xntQGUrWIhMFYv-NJkoqnzcqxcpvK3kITlfqb6zjxclea3QJ7xDCofZwFiUDBFdJTw76VjJkq_F-CiUHjj3_wuqhFHPuOgfXcMUTNYempshYpyOYKtvZLWM9s42RgL-yhTwBS54QraxEO90"
->>>>>>> rob_dangerous
+const SPOTIFY_TOKEN = "Bearer " + "BQBNbPtZj2qNSKp_3z4Ir5UfWktp3O8R3VVERuZz2Dmk-YC7WjxGidr9It9soFVtMoQ1Y39ViQTQtiu7GxLXzMD1KoLGCxAWcOSR6JuQns5Q9iJrDpXmRRRsncOI1R4YJ5_34_NeTsA829PXIixiJ3277tEDJnsgZoRVwd7km4XRWdKIACjeL80HOf32qDPLg2mYDnjYvJyF3PAttY-cTpVxClS-wn3-WbWo-0y9s9GQy4C9ohbolkDXOj9BzUjAiPNRp0lnDmEsKtt56Xi98_-r_4blF0iE9A-SKE2kXwvqBjmaPA91ZtG4YiSMu2-NYshjuHM"
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -72,7 +67,6 @@ io.on('connection', function (socket) {
 
     socket.on('ADD_SONG', function (data) {
         console.log("SONG ADDED");
-        console.log("EHEEHEHEHEHE");
         SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
         function callback(result) {
             var newSong = {
