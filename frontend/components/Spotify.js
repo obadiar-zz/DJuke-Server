@@ -22,13 +22,13 @@ class Spotify extends React.Component {
     }
   }
 
-  componentWillMount() {
-    console.log("WHAT", this.props.spotify);
-    fetch('http://localhost:8228/registerHostSpotify?token=' + this.props.spotify.token, {
+  componentDidUpdate() {
+    fetch('http://localhost:8228/registerHostSpotify?token=' + this.props.token, {
       method: 'get',
     })
     .then(resp => resp.json())
     .then(resp => {
+      console.log("EHHEHEHEHEH", resp);
       this.props.onSpotifyMount(resp.user, resp.playlist)
     })
     .catch(error => {console.log(error)})
@@ -36,7 +36,7 @@ class Spotify extends React.Component {
 
   handleClick() {
     console.log('click');
-    fetch('http://localhost:8228/continueHostSpotify/?token=' + this.props.spotify.token + '&user=' + this.props.spotify.user + '&playlist=' + this.props.spotify.playlist, {
+    fetch('http://localhost:8228/continueHostSpotify/?token=' + this.props.token + '&user=' + this.props.spotify.user + '&playlist=' + this.props.spotify.playlist, {
       method: 'get',
     })
     .then(resp => resp.json())
@@ -72,7 +72,7 @@ class Spotify extends React.Component {
           />
           <iframe
             className="widget"
-            src={"https://embed.spotify.com/?uri=spotify:user:" + this.props.spotify.user + ":playlist:" + this.props.spotify.playlist}
+            src={"https://open.spotify.com/embed?uri=spotify:user:" + this.props.spotify.user + ":playlist:" + this.props.spotify.playlist}
             frameBorder="0"
             allowTransparency="true"
           />
