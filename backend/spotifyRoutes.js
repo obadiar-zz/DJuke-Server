@@ -33,7 +33,7 @@ router.get("/registerHostSpotify", function(req, res){
   axios.post("https://rocky-brook-68243.herokuapp.com/register", {
       lan: ip.address()
   })
-  
+
   var token = "Bearer " + req.query.token;
   generic(token, res);
 })
@@ -68,28 +68,37 @@ function addNextAndPlay(user_id, playlist_id, token, first){
       var playlist_id = spotifyData[user_id].playlist_id;
       var token = spotifyData[user_id].token;
       addNextAndPlay(user_id, playlist_id, token, false);
-    },(3)*1000)
+    },(1)*1000)
   }else{
     var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
     var nextSong = queue.pop();
     // localStorage.setItem("currentlyPlaying", JSON.stringify(nextSong))
-    console.log("SONG UP NEXT!!!!! : ", nextSong);
-    var song_uri = "spotify:track:"+nextSong.id;
+    // console.log("SONG UP NEXT!!!!! : ", nextSong);
+    if(queue.length || nextSong){
+      console.log("NEXT SONG IN QUEUE");
+
+      var song_uri = "spotify:track:"+nextSong.id;
+      localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
+      var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
+      addTrack(user_id, playlist_id, token, song_uri)
+      console.log(queue.length, song_uri);
+        setTimeout(function(){
+          var user_id = Object.keys(spotifyData)[0];
+          var playlist_id = spotifyData[user_id].playlist_id;
+          var token = spotifyData[user_id].token;
+          addNextAndPlay(user_id, playlist_id, token, false);
+        },(5)*1000)
+    } else {
+      console.log("NOTHING IN QUEUE");
+      eventListener.emit("spotify_done", {});
+    }
 
     eventListener.emit("nextSong_Spotify", {
-      currentlyPlaying: nextSong,
+      currentlyPlaying: nextSong || "QUEUE EMPTY",
       list: queue
     });
-    localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
-    var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
-    addTrack(user_id, playlist_id, token, song_uri)
 
-    setTimeout(function(){
-      var user_id = Object.keys(spotifyData)[0];
-      var playlist_id = spotifyData[user_id].playlist_id;
-      var token = spotifyData[user_id].token;
-      addNextAndPlay(user_id, playlist_id, token, false);
-    },(45)*1000)
+
   }
 
 
