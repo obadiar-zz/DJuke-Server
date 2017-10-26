@@ -5,28 +5,13 @@ const router = express.Router();
 var ip = require('ip');
 var axios = require('axios');
 
-var generic = spotify.SpotifyUserInitialization;
+var initializeSpotiyUser = spotify.SpotifyUserInitialization;
 var confirmExpectedPlaylistPlaying = spotify.confirmExpectedPlaylistPlaying;
-var addTrack = spotify.addTrackToPlaylist;
-var play = spotify.playSong;
-var next = spotify.nextSong;
-var localStorage = require('localStorage');
 
 
-
-var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
-
-// create EventEmitter object
-const EventEmitter = require('events');
-var eventListener = new EventEmitter();
-
-
-var spotifyData = {};
-
-router.get("/soundcloud", function(req, res){
-  res.send(req);
-})
-
+// Here we add the ip address of the host to the master server
+// for easy ip discover on a local network. We also initialize
+// the spotify user.
 router.get("/registerHostSpotify", function(req, res){
   console.log("Receieved request.");
 
@@ -35,9 +20,11 @@ router.get("/registerHostSpotify", function(req, res){
   })
 
   var token = "Bearer " + req.query.token;
-  generic(token, res);
+  initializeSpotiyUser(token, res);
 })
 
+// This confirmation stage is necessary to make sure the user
+// is playing music on the right playlist.
 router.get("/continueHostSpotify", function(req, res){
   console.log("Receieved request.");
   var token = "Bearer " + req.query.token;
@@ -45,68 +32,11 @@ router.get("/continueHostSpotify", function(req, res){
   var playlist_id = req.query.playlist;
   var playlist_uri = "spotify:user:" + user_id + ":playlist:" + playlist_id;
 
-  spotifyData[user_id] = {
-    playlist_id,
-    token,
-    user_id
-  }
   confirmExpectedPlaylistPlaying(token, user_id, playlist_id, playlist_uri,res);
 })
 
-function firstSong(){
-  console.log("First song called.");
-  var user_id = Object.keys(spotifyData)[0];
-  var playlist_id = spotifyData[user_id].playlist_id;
-  var token = spotifyData[user_id].token;
-  addNextAndPlay(user_id, playlist_id, token, true);
-}
 
-function addNextAndPlay(user_id, playlist_id, token, first){
-  if(first) {
-    setTimeout(function(){
-      var user_id = Object.keys(spotifyData)[0];
-      var playlist_id = spotifyData[user_id].playlist_id;
-      var token = spotifyData[user_id].token;
-      addNextAndPlay(user_id, playlist_id, token, false);
-    },(1)*1000)
-  }else{
-    var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
-    var nextSong = queue.pop();
-    // localStorage.setItem("currentlyPlaying", JSON.stringify(nextSong))
-    // console.log("SONG UP NEXT!!!!! : ", nextSong);
-    if(queue.length || nextSong){
-      console.log("NEXT SONG IN QUEUE");
-
-      var song_uri = "spotify:track:"+nextSong.id;
-      localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
-      var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
-      addTrack(user_id, playlist_id, token, song_uri)
-      console.log(queue.length, song_uri);
-        setTimeout(function(){
-          var user_id = Object.keys(spotifyData)[0];
-          var playlist_id = spotifyData[user_id].playlist_id;
-          var token = spotifyData[user_id].token;
-          addNextAndPlay(user_id, playlist_id, token, false);
-        },(5)*1000)
-    } else {
-      console.log("NOTHING IN QUEUE");
-      eventListener.emit("spotify_done", {});
-    }
-
-    eventListener.emit("nextSong_Spotify", {
-      currentlyPlaying: nextSong || "QUEUE EMPTY",
-      list: queue
-    });
-
-
-  }
-
-
-
-}
 
 module.exports = {
-  router,
-  eventListener,
-  firstSong
+  router
 };

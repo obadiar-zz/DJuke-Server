@@ -2,6 +2,24 @@ var axios = require('axios'); // "Request" library
 var request = require('request')
 var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
 
+var songLength = 45;
+
+// localStorage used to store queue between
+// 1) server
+// 2) SpotifyUtils
+// 3) SoundCloudUtils
+var localStorage = require('localStorage');
+
+// Create Event Listner to emit events to the server.js
+const EventEmitter = require('events');
+var eventListener = new EventEmitter();
+
+// A mapping of user_id to
+// 1) user_id
+// 2) playlist_id
+// 3) token
+var spotifyData = {};
+
 function pauseSong(client_token) {
   return axios({
     url: 'https://api.spotify.com/v1/me/player/pause',
@@ -201,7 +219,16 @@ function SpotifyUserInitialization(client_token, res) {
   })
   .catch( err => console.log(err))
 }
-
+/*
+  This function confirms that the user has
+  entered the correct playlist. This is necessary because
+  we cannot directly control what specific song the user
+  is listening to. Thus, we came up with a work around
+  where the user listens to a certain playlist. Since
+  we have full control of the playlist (add, delete songs)
+  and full control over the user's player (play, pause, next song)
+  we can now control what music is played.
+*/
 function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expected_uri, res) {
 
   var options = {
@@ -215,7 +242,12 @@ function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id, expe
     console.log("ERR", error);
     console.log("resp", response);
     console.log("body", body);
-    if(body.context.uri === expected_uri){
+    if(body.context !== undefined && body.context.uri === expected_uri){
+        spotifyData[user_id] = {
+          playlist_id,
+          token: client_token,
+          user_id
+        }
         res.json({ confirm_status:  true});
       } else{
         console.log(expected_uri );
@@ -253,11 +285,69 @@ function msToMinutes(ms) {
   return '' + minutes + ':' + seconds;
 }
 
-module.exports = {
+// We need a way to "initiate" a playlist_id,
+// this is called everytime the queue goes from
+// 0 to n.
+function firstSong(){
+  console.log("First song called.");
+  var user_id = Object.keys(spotifyData)[0];
+  var playlist_id = spotifyData[user_id].playlist_id;
+  var token = spotifyData[user_id].token;
+  addNextAndPlay(user_id, playlist_id, token, true);
+}
 
-  addTrackToPlaylist,
+function addNextAndPlay(user_id, playlist_id, token, first){
+  // Special case if the song is the first song since
+  // it must be the get the timer chain started.
+  if(first) {
+    setTimeout(function(){
+      var user_id = Object.keys(spotifyData)[0];
+      var playlist_id = spotifyData[user_id].playlist_id;
+      var token = spotifyData[user_id].token;
+      addNextAndPlay(user_id, playlist_id, token, false);
+    },(1)*1000)
+  }else{
+    var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
+    var nextSong = queue.pop();
+
+    // Here checking if the queue is empty AND there is no song currently
+    // playing. This is necessary to:
+    // a) make sure the app won't crash on an empty queue
+    // b) reset the first song variable that allows the queue to restart
+    //    after empty.
+    if(queue.length || nextSong){
+      console.log("NEXT SONG IN QUEUE");
+
+      var song_uri = "spotify:track:"+nextSong.id;
+      localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
+      var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
+      addTrackToPlaylist(user_id, playlist_id, token, song_uri)
+      console.log(queue.length, song_uri);
+        setTimeout(function(){
+          var user_id = Object.keys(spotifyData)[0];
+          var playlist_id = spotifyData[user_id].playlist_id;
+          var token = spotifyData[user_id].token;
+          addNextAndPlay(user_id, playlist_id, token, false);
+        },(songLength)*1000)
+    } else {
+      console.log("NOTHING IN QUEUE");
+      eventListener.emit("spotify_done", {});
+    }
+
+    eventListener.emit("nextSong_Spotify", {
+      currentlyPlaying: nextSong || "QUEUE EMPTY",
+      list: queue
+    });
+
+
+  }
+}
+
+module.exports = {
   SpotifyUserInitialization,
   confirmExpectedPlaylistPlaying,
   getSongInfo,
   msToMinutes,
+  eventListener,
+  firstSong
 }
