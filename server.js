@@ -9,8 +9,8 @@ const SCUtils = require('./utils/SCUtils')
 const routes = require('./backend/routes');
 const Queue = require('./backend/queue');
 const spotify = require('./backend/spotifyRoutes').router;
-const spotifyFirstSong = require('./backend/spotifyRoutes').firstSong;
-const spotifyEventListener = require('./backend/spotifyRoutes').eventListener;
+const spotifyFirstSong = SpotifyUtils.firstSong;
+const spotifyEventListener = SpotifyUtils.eventListener;
 var localStorage = require('localStorage');
 
 var firstSong = true;
@@ -32,7 +32,7 @@ spotifyEventListener.on("spotify_done", function (data) {
     firstSong = true;
 });
 
-const SPOTIFY_TOKEN = "Bearer " + "BQB5eZBmDwHoh331MsqlKtmMYJgQcV0OFUML3ofVYzzROAyYt0FcsK5md1PHvYlykQKNjR1eLTOxrNafVbHDWTCHw6JXzeop2vbhAcGUSbjBK8tOdP4-uStZAr5L8shQUdMF0RZ3Yi9MWS40ZCM2c7746wt0iCC0mMjmSFiSkBW94L8Espk_rGsPPJGThrzH9QzqRc5XoshMKAXY8vzlAs1qoBUjs6LDjKR6TdimhTCyXYvkjGnE0M6JuBa171MlpbtPf59jZY8nWOTF3WlWKqNne1v9tWcNEMLZ4X5HuJWz-ywlNUmJAVHb6bC2iiJZBTiO-HE"
+const SPOTIFY_TOKEN = "Bearer " + "BQA2mKXLLV8-UlVQK4uBSyswPHBtVsFwLKknhgAXfa_1gBSJcH6JQ0-faBSTfmhqvIOEv6HyMqGkHUv0uFG_LOmVunL04iTRnga4C0Sne3Fp-MGE80p43Fk-_1tA2w2YyuEPxL9mpoOSLlRd0OSoHJ5gSj556LYJq9MhPxR7OiLpu_6yR156Dwtu31MATaluaF3aG2UVevt7vgWdIy8PLeefdCT5XQB83CGha3wClMkOvC_56s6uUweCvDjxbCMpsHbF9GuCL9kBCmJpqcwCGtFJZsNEsswg3CSZe0OCYhpkLWcI9rbpfweXQNuWRtrrwleCw4c"
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -90,7 +90,12 @@ io.on('connection', function (socket) {
             localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
             io.emit('QUEUE_UPDATED', SongQueue);
             if (firstSong) {
-                spotifyFirstSong()
+                if(data.type === 'spotify'){
+                  spotifyFirstSong()
+                } else {
+
+                }
+
                 firstSong = false;
             }
         }
