@@ -1,3 +1,5 @@
 node_modules/
 env.sh
 package-lock.json
+public/*.json
+public/*.js
