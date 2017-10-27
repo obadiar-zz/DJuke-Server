@@ -26,12 +26,12 @@ class Spotify extends React.Component {
     fetch('http://localhost:8228/registerHostSpotify?token=' + this.props.token, {
       method: 'get',
     })
-    .then(resp => resp.json())
-    .then(resp => {
-      console.log("EHHEHEHEHEH", resp);
-      this.props.onSpotifyMount(resp.user, resp.playlist)
-    })
-    .catch(error => {console.log(error)})
+      .then(resp => resp.json())
+      .then(resp => {
+        // console.log("EHHEHEHEHEH", resp);
+        this.props.onSpotifyMount(resp.user, resp.playlist)
+      })
+      .catch(error => { console.log(error) })
   }
 
   handleClick() {
@@ -39,16 +39,16 @@ class Spotify extends React.Component {
     fetch('http://localhost:8228/continueHostSpotify/?token=' + this.props.token + '&user=' + this.props.spotify.user + '&playlist=' + this.props.spotify.playlist, {
       method: 'get',
     })
-    .then(resp => resp.json())
-    .then(resp => {
-      console.log(resp);
-      this.props.onSpotifyConfirm(resp.confirm_status)
-      this.props.confirm();
-      this.setState({
-        open: true,
+      .then(resp => resp.json())
+      .then(resp => {
+        console.log(resp);
+        this.props.onSpotifyConfirm(resp.confirm_status)
+        this.props.confirm();
+        this.setState({
+          open: true,
+        })
       })
-    })
-    .catch(error => {console.log(error)})
+      .catch(error => { console.log(error) })
   }
 
   handleRequestClose() {
@@ -62,7 +62,7 @@ class Spotify extends React.Component {
       <Paper
         className="card card-spotify"
         zDepth={4}
-        >
+      >
         <Card>
           <CardHeader
             title="Spotify"

@@ -27,15 +27,11 @@ class App extends React.Component {
     })
   }
 
-  componentWillReceiveProps(props) {
-    console.log('STATE:', this.props.currentlyPlayingSong)
-  }
-
   render() {
     return (
       <div className={'container'}>
         <Header />
-        <Body queue={this.props.songList} setNewSongPlaying={(song) => this.props.onNewSongUpdate(song)} />
+        <Body queue={this.props.songList} currentlyPlayingSong={this.props.currentlyPlayingSong} setNewSongPlaying={(song) => this.props.onNewSongUpdate(song)} />
         <Footer />
       </div>
     );
