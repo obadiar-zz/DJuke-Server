@@ -2,7 +2,7 @@ var axios = require('axios'); // "Request" library
 var request = require('request')
 var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
 
-var songLength = 45;
+var songLength = 10;
 
 // localStorage used to store queue between
 // 1) server
@@ -328,7 +328,7 @@ function addNextAndPlay(user_id, playlist_id, token, first){
           var playlist_id = spotifyData[user_id].playlist_id;
           var token = spotifyData[user_id].token;
           addNextAndPlay(user_id, playlist_id, token, false);
-        },(songLength)*1000)
+        },(nextSong.durationS)*1000)
     } else {
       console.log("NOTHING IN QUEUE");
       eventListener.emit("spotify_done", {});

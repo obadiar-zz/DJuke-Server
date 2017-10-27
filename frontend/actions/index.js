@@ -21,3 +21,10 @@ export function updateQueue(data) {
     data,
   };
 }
+
+export function newSongPlaying(song) {
+  return {
+    type: types.NEW_SONG_PLAYING,
+    song,
+  };
+}
