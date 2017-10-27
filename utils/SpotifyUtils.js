@@ -4,13 +4,12 @@ var Spotify_API = require('./SpotifyAPI.js')
 // Default song used for confirming connection to Spotify.
 var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
 
-// ** TO DELETE **
-var localStorage = require('localStorage');
-
 // Event emitter to establish means of communication with the
 // central server, queue, and state logic.
 const EventEmitter = require('events');
 var eventListener = new EventEmitter();
+
+eventListener.on('doorOpen', () => console.log("This is working!!!!"));
 
 // Construct a mapping of user_id to pertinent user information
 // including a) client token b) playlist id
@@ -150,51 +149,16 @@ function msToMinutes(ms) {
   return '' + minutes + ':' + seconds;
 }
 
-// We need a way to "initiate" a playlist_id,
-// this is called everytime the queue goes from
-// 0 to n.
-function firstSong(){
-  console.log("First song called.");
-  var user_id = Object.keys(spotifyData)[0];
-  var playlist_id = spotifyData[user_id].playlist_id;
-  var token = spotifyData[user_id].token;
-  addNextAndPlay(user_id, playlist_id, token, true);
-}
+function addNextAndPlay(song_object){
+      var user_id = Object.keys(spotifyData)[0];
+      var playlist_id = spotifyData[user_id];
+      var token = spotifyData[user_id];
+      var song_uri = "spotify:track:"+song_object.id;
 
-function addNextAndPlay(user_id, playlist_id, token, first){
-
-  if(first) {
-    setTimeout(function(){
-      addNextAndPlay(user_id, playlist_id, token, false);
-    },(1)*1000)
-  }else{
-    var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
-    var nextSong = queue.pop();
-
-    if(queue.length || nextSong){
-      console.log("NEXT SONG IN QUEUE");
-
-      var song_uri = "spotify:track:"+nextSong.id;
-      localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
-      var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
       addTrackToPlaylist(user_id, playlist_id, token, song_uri)
-      console.log(queue.length, song_uri);
         setTimeout(function(){
-          var user_id = Object.keys(spotifyData)[0];
-          var playlist_id = spotifyData[user_id].playlist_id;
-          var token = spotifyData[user_id].token;
-          addNextAndPlay(user_id, playlist_id, token, false);
-        },(nextSong.durationS)*1000)
-    } else {
-      console.log("NOTHING IN QUEUE");
-      eventListener.emit("spotify_done", {});
-    }
 
-    eventListener.emit("nextSong_Spotify", {
-      currentlyPlaying: nextSong || "QUEUE EMPTY",
-      list: queue
-    });
-  }
+        },(nextSong.durationS-2)*1000)
 }
 
 module.exports = {
@@ -202,6 +166,5 @@ module.exports = {
   confirmExpectedPlaylistPlaying,
   getSongInfo,
   msToMinutes,
-  eventListener,
-  firstSong
+  eventListener
 }
