@@ -9,7 +9,7 @@ import Header from './Header';
 import Body from './Body';
 import Footer from './Footer';
 
-import { updateQueue } from '../actions/index';
+import { updateQueue, newSongPlaying } from '../actions/index';
 
 // class component
 class App extends React.Component {
@@ -20,6 +20,9 @@ class App extends React.Component {
   componentDidMount() {
     const socket = io("http://localhost:8228")
     socket.on("QUEUE_UPDATED", data => {
+      if(data.currentlyPlaying){
+        this.props.onNewSongUpdate(data.currentlyPlaying)
+      }
       this.props.onUpdateQueue(data)
     })
   }
@@ -38,6 +41,7 @@ class App extends React.Component {
 const mapDispatchToProps = (dispatch) => {
   return {
     onUpdateQueue: (newQueue) => dispatch(updateQueue(newQueue)),
+    onNewSongUpdate: (song) => dispatch(newSongPlaying(song)),
   };
 };
 

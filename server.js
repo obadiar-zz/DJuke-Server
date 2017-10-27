@@ -9,9 +9,8 @@ const SCUtils = require('./utils/SCUtils')
 const routes = require('./backend/routes');
 const Queue = require('./backend/queue');
 const spotify = require('./backend/spotifyRoutes').router;
-const spotifyFirstSong = require('./backend/spotifyRoutes').firstSong;
-const spotifyEventListener = require('./backend/spotifyRoutes').eventListener;
-const axios = require('axios');
+const spotifyFirstSong = SpotifyUtils.firstSong;
+const spotifyEventListener = SpotifyUtils.eventListener;
 var localStorage = require('localStorage');
 const passport = require('passport');
 const session = require('express-session');
@@ -143,7 +142,10 @@ io.on('connection', function (socket) {
             localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
             io.emit('QUEUE_UPDATED', SongQueue);
             if (firstSong) {
-                spotifyFirstSong()
+                if(data.type === 'spotify'){
+                  spotifyFirstSong()
+                }
+
                 firstSong = false;
             }
         }
