@@ -110,6 +110,7 @@ io.on('connection', function (socket) {
 
     socket.on('CONNECT', function () {
         id = socket.id;
+        console.log("Connection received!");
         socket.emit('SUCCESS', 'CONNECTED');
     });
     socket.on('RECEIVE_TOKEN', function () {
