@@ -18,7 +18,7 @@ class Body extends React.Component {
       <div className={'container body'}>
         <div className='clients'>
           <Spotify />
-          <SoundCloud queue={this.props.queue} currentlyPlaying={this.props.currentlyPlaying} />
+          <SoundCloud queue={this.props.queue} setNewSongPlaying={(song) => this.props.setNewSongPlaying(song)} />
         </div>
         <Queue />
       </div>

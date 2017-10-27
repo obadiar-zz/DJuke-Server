@@ -9,7 +9,7 @@ import Header from './Header';
 import Body from './Body';
 import Footer from './Footer';
 
-import { updateQueue } from '../actions/index';
+import { updateQueue, newSongPlaying } from '../actions/index';
 
 // class component
 class App extends React.Component {
@@ -24,11 +24,15 @@ class App extends React.Component {
     })
   }
 
+  componentWillRecieveProps(props) {
+    console.log('STATE:', this.props.currentlyPlayingSong)
+  }
+
   render() {
     return (
       <div className={'container'}>
         <Header />
-        <Body queue={this.props.songList} currentlyPlaying={this.props.currentlyPlaying} />
+        <Body queue={this.props.songList} setNewSongPlaying={(song) => this.props.newSongPlaying(song)} />
         <Footer />
       </div>
     );
@@ -38,13 +42,14 @@ class App extends React.Component {
 const mapStateToProps = (state) => {
   return {
     songList: state.songList,
-    currentlyPlaying: state.currentlyPlaying
+    currentlyPlayingSong: state.currentlyPlayingSong
   }
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     onUpdateQueue: (newQueue) => dispatch(updateQueue(newQueue)),
+    newSongPlaying: (song) => dispatch(newSongPlaying(song))
   };
 };
 

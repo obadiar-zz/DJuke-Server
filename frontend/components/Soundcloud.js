@@ -34,6 +34,7 @@ class SoundCloud extends React.Component {
     const socket = io("http://localhost:8228")
     if (playQueue.length !== 0) {
       this.playSong(playQueue[0]);
+      this.props.setNewSongPlaying(playQueue[0])
       socket.emit("REMOVE_SONG", playQueue[0]);
     }
     playQueue.shift();
