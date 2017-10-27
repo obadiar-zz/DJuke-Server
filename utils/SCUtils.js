@@ -1,6 +1,7 @@
-var request = require('request'); // "Request" library
+var request = require('request'); // "Request" libraryvar
 
-var CLIENT_ID = '309011f9713d22ace9b976909ed34a80'; // Your client id
+var CLIENT_ID = '309011f9713d22ace9b976909ed34a80'; // Your client id\
+var CLIENT_SECRET = '5e7a314764c617c43b4409be3e204bef';
 
 function getSongInfo(song_id, cb) {
     var options = {
@@ -13,7 +14,8 @@ function getSongInfo(song_id, cb) {
             duration: body.duration,
             artist: body.user.username,
             thumbnail: body.artwork_url,
-            id: song_id
+            id: song_id,
+            url: body.permalink_url
         });
     })
 }

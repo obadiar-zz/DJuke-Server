@@ -32,6 +32,7 @@
     "mocha": "^3.2.0",
     "mongoose": "^4.12.4",
     "node-sass": "^4.5.2",
+    "node-soundcloud": "0.0.6",
     "os": "^0.1.1",
     "passport": "^0.4.0",
     "passport-spotify": "^0.3.1",
@@ -41,6 +42,7 @@
     "react-modal": "^3.0.4",
     "react-redux": "^5.0.5",
     "react-router-redux": "^4.0.8",
+    "react-soundplayer": "^1.0.2",
     "redux": "^3.7.2",
     "redux-devtools": "^3.4.0",
     "redux-devtools-dock-monitor": "^1.1.2",
@@ -49,6 +51,7 @@
     "sass-loader": "^6.0.3",
     "socket.io": "^2.0.3",
     "socket.io-client": "^2.0.3",
+    "soundcloud-audio": "^1.2.1",
     "style-loader": "^0.16.1",
     "webpack": "^2.3.3"
   },

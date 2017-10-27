@@ -3,12 +3,14 @@ import RaisedButton from 'material-ui/RaisedButton';
 import { connect } from 'react-redux';
 // import components to render
 import Spotify from './Spotify'
-import Soundcloud from './Soundcloud'
+import SoundCloud from './Soundcloud'
 import Queue from './Queue'
 import io from 'socket.io-client';
 import { sendSpotifyToken } from '../actions/index';
 
 import MediaPlayer from './MediaPlayer'
+
+var playQueue = [];
 
 class Body extends React.Component {
   constructor(props) {
@@ -33,16 +35,14 @@ class Body extends React.Component {
     return (
       <div className={'container body'}>
         <div className='clients'>
+          <SoundCloud queue={this.props.queue} setNewSongPlaying={(song) => this.props.setNewSongPlaying(song)} />
           {
-            this.state.spotifyConfirmed ? <MediaPlayer /> : <Spotify token={this.props.token} confirm={this.spotifyConfirm.bind(this)}/>
+            this.state.spotifyConfirmed ? <MediaPlayer /> : <Spotify token={this.props.token} confirm={this.spotifyConfirm.bind(this)} />
           }
-
-
-
         </div>
-        {this.props.token ? <div></div> :  <div style={{textAlign: 'center'}}>
-                  <a className="spotify-login" href="/auth/spotify" style={{display: 'inline-block', fontFamily: 'Arial'}}><i style={{color: '#2ebd59', fontSize: '18px'}} className="fa fa-spotify" aria-hidden="true"></i> Log in with Spotify</a>
-                </div>}
+        {this.props.token ? <div></div> : <div style={{ textAlign: 'center' }}>
+          <a className="spotify-login" href="/auth/spotify" style={{ display: 'inline-block', fontFamily: 'Arial' }}><i style={{ color: '#2ebd59', fontSize: '18px' }} className="fa fa-spotify" aria-hidden="true"></i> Log in with Spotify</a>
+        </div>}
 
         <Queue />
       </div>

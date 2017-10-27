@@ -17,21 +17,21 @@ const session = require('express-session');
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo')(session);
 const SpotifyStrategy = require('passport-spotify').Strategy;
-if (! process.env.MONGODB_URI) {
-  throw new Error("MONGODB_URI is not in the environmental variables. Try running 'source env.sh'");
+if (!process.env.MONGODB_URI) {
+    throw new Error("MONGODB_URI is not in the environmental variables. Try running 'source env.sh'");
 }
 
-mongoose.connection.on('connected', function() {
-  console.log('Success: connected to MongoDb!');
+mongoose.connection.on('connected', function () {
+    console.log('Success: connected to MongoDb!');
 });
-mongoose.connection.on('error', function() {
-  console.log('Error connecting to MongoDb. Check MONGODB_URI in env.sh');
-  process.exit(1);
+mongoose.connection.on('error', function () {
+    console.log('Error connecting to MongoDb. Check MONGODB_URI in env.sh');
+    process.exit(1);
 });
 mongoose.connect(process.env.MONGODB_URI);
 app.use(session({
-  secret: 'My secret',
-  store: new MongoStore({mongooseConnection: mongoose.connection})
+    secret: 'My secret',
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -40,19 +40,19 @@ passport.use(new SpotifyStrategy({
     clientID: process.env.SPOTIFY_CLIENT_ID,
     clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
     callbackURL: "http://localhost:8228/auth/spotify/callback"
-  },
-  function(accessToken, refreshToken, profile, done) {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-    done(null, profile);
-  }
+},
+    function (accessToken, refreshToken, profile, done) {
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        done(null, profile);
+    }
 ));
-passport.serializeUser(function(profile, done){
-  done(null, profile);
+passport.serializeUser(function (profile, done) {
+    done(null, profile);
 })
 
-passport.deserializeUser(function(profile, done){
-  done(null, profile);
+passport.deserializeUser(function (profile, done) {
+    done(null, profile);
 })
 var firstSong = true;
 var g_socket;
@@ -79,11 +79,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (request, response) => {
     response.sendFile(__dirname + '/public/index.html'); // For React/Redux
 });
-app.get('/auth/spotify', passport.authenticate('spotify', {scope: ['playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-public', 'playlist-modify-private', 'streaming', 'ugc-image-upload', 'user-follow-modify', 'user-follow-read', 'user-library-read', 'user-library-modify', 'user-read-private', 'user-read-birthdate', 'user-read-email', 'user-top-read', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-recently-played'] }))
+app.get('/auth/spotify', passport.authenticate('spotify', { scope: ['playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-public', 'playlist-modify-private', 'streaming', 'ugc-image-upload', 'user-follow-modify', 'user-follow-read', 'user-library-read', 'user-library-modify', 'user-read-private', 'user-read-birthdate', 'user-read-email', 'user-top-read', 'user-read-playback-state', 'user-modify-playback-state', 'user-read-currently-playing', 'user-read-recently-played'] }))
 
-app.get('/auth/spotify/callback', passport.authenticate('spotify'), function(req, res) {
+app.get('/auth/spotify/callback', passport.authenticate('spotify'), function (req, res) {
 
-  res.redirect('/');
+    res.redirect('/');
 
 
 })
@@ -99,9 +99,9 @@ localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
 
 app.use('/', routes);
 app.use('/', spotify);
+// app.use('/', soundcloud);
 
 io.on('connection', function (socket) {
-    console.log("Connection made");
     g_socket = io;
 
     var id;
@@ -109,13 +109,12 @@ io.on('connection', function (socket) {
     socket.emit('QUEUE_UPDATED', SongQueue);
 
     socket.on('CONNECT', function () {
-        console.log("Connection heard");
         id = socket.id;
         socket.emit('SUCCESS', 'CONNECTED');
     });
-    socket.on('RECEIVE_TOKEN', function() {
-      console.log("CHECK", localStorage.getItem('accessToken'));
-      socket.emit('SEND_APP_TOKEN', localStorage.getItem('accessToken'));
+    socket.on('RECEIVE_TOKEN', function () {
+        console.log("CHECK", localStorage.getItem('accessToken'));
+        socket.emit('SEND_APP_TOKEN', localStorage.getItem('accessToken'));
     })
     socket.on('ADD_SONG', function (data) {
         console.log("SONG ADDED");
@@ -131,6 +130,7 @@ io.on('connection', function (socket) {
                 payment: data.payment || 0,
                 requestor_id: socket.id,
                 thumbnail: result.thumbnail,
+                url: result.url,
                 time: String(new Date())
             }
             if (!SongQueue.addSong(newSong)) {
@@ -141,19 +141,18 @@ io.on('connection', function (socket) {
             SongQueue.sort();
             localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
             io.emit('QUEUE_UPDATED', SongQueue);
-            if (firstSong) {
-                if(data.type === 'spotify'){
-                  spotifyFirstSong()
-                }
-
+            if (firstSong && data.type === 'spotify') {
+                spotifyFirstSong()
                 firstSong = false;
             }
         }
         if (data.type === 'spotify') {
             const SPOTIFY_TOKEN = "Bearer " + localStorage.getItem('accessToken');
             SpotifyUtils.getSongInfo(SPOTIFY_TOKEN, data.id, callback)
-        } else {
+        } else if (data.type === 'soundcloud') {
             SCUtils.getSongInfo(data.id, callback)
+        } else {
+            socket.emit('ERROR', 'SONG_TYPE_UNKNOWN');
         }
     })
 
