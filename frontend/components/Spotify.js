@@ -43,6 +43,7 @@ class Spotify extends React.Component {
     .then(resp => {
       console.log(resp);
       this.props.onSpotifyConfirm(resp.confirm_status)
+      this.props.confirm();
       this.setState({
         open: true,
       })

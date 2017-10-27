@@ -32,7 +32,7 @@ spotifyEventListener.on("spotify_done", function (data) {
     firstSong = true;
 });
 
-const SPOTIFY_TOKEN = "Bearer " + "BQA2mKXLLV8-UlVQK4uBSyswPHBtVsFwLKknhgAXfa_1gBSJcH6JQ0-faBSTfmhqvIOEv6HyMqGkHUv0uFG_LOmVunL04iTRnga4C0Sne3Fp-MGE80p43Fk-_1tA2w2YyuEPxL9mpoOSLlRd0OSoHJ5gSj556LYJq9MhPxR7OiLpu_6yR156Dwtu31MATaluaF3aG2UVevt7vgWdIy8PLeefdCT5XQB83CGha3wClMkOvC_56s6uUweCvDjxbCMpsHbF9GuCL9kBCmJpqcwCGtFJZsNEsswg3CSZe0OCYhpkLWcI9rbpfweXQNuWRtrrwleCw4c"
+const SPOTIFY_TOKEN = "Bearer " + "BQA-vUftoPVoEkUSeXJx9mMuXHGnVfODc15E8L15T8xbLjJ_WcOgsrBrzl1KKQsAoPUAJVMmVlG1PIT8c32B_V5Q_ZlRVcikxs6B5uoOAbtNPBNpkJfUUU9t1GauaE4P91zpbGYtHPucWfTD4c2oQxsBksiJocnjT2EFTRp6gUXufT3maa_aNUpbzyJ75W9Ih4P7QvAySdp7p9Q7-TBdV21Fvp76z1uy7vigBrUzCH7jYwrgyZG8HOCk2QjPUCqS6bDtqeKlzDDKsy34V4JrSW-YX4_ea8m51WOyQ04gIk4I17pB45eJCRt0Zx2RzFhj1zeO270"
 
 app.use(express.static(path.join(__dirname, 'public')));
 
