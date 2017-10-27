@@ -20,6 +20,9 @@ class App extends React.Component {
   componentDidMount() {
     const socket = io("http://localhost:8228")
     socket.on("QUEUE_UPDATED", data => {
+      if (data.currentlyPlaying) {
+        this.props.onNewSongUpdate(data.currentlyPlaying)
+      }
       this.props.onUpdateQueue(data)
     })
   }
@@ -32,7 +35,7 @@ class App extends React.Component {
     return (
       <div className={'container'}>
         <Header />
-        <Body queue={this.props.songList} setNewSongPlaying={(song) => this.props.newSongPlaying(song)} />
+        <Body queue={this.props.songList} setNewSongPlaying={(song) => this.props.onNewSongUpdate(song)} />
         <Footer />
       </div>
     );
@@ -49,7 +52,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     onUpdateQueue: (newQueue) => dispatch(updateQueue(newQueue)),
-    newSongPlaying: (song) => dispatch(newSongPlaying(song))
+    onNewSongUpdate: (song) => dispatch(newSongPlaying(song)),
   };
 };
 

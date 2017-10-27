@@ -14,7 +14,12 @@ export function spotifyConfirm(confirm_status) {
     confirm_status,
   };
 }
-
+export function sendSpotifyToken(token) {
+  return {
+    type: types.SPOTIFY_TOKEN,
+    token
+  }
+}
 export function updateQueue(data) {
   return {
     type: types.UPDATE_QUEUE,
@@ -26,5 +31,5 @@ export function newSongPlaying(song) {
   return {
     type: types.NEW_SONG_PLAYING,
     song,
-  }
+  };
 }

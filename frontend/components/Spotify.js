@@ -22,8 +22,8 @@ class Spotify extends React.Component {
     }
   }
 
-  componentWillMount() {
-    fetch('http://localhost:8228/registerHostSpotify?token=' + this.props.spotify.token, {
+  componentDidUpdate() {
+    fetch('http://localhost:8228/registerHostSpotify?token=' + this.props.token, {
       method: 'get',
     })
     .then(resp => resp.json())
@@ -36,13 +36,14 @@ class Spotify extends React.Component {
 
   handleClick() {
     console.log('click');
-    fetch('http://localhost:8228/continueHostSpotify/?token=' + this.props.spotify.token + '&user=' + this.props.spotify.user + '&playlist=' + this.props.spotify.playlist, {
+    fetch('http://localhost:8228/continueHostSpotify/?token=' + this.props.token + '&user=' + this.props.spotify.user + '&playlist=' + this.props.spotify.playlist, {
       method: 'get',
     })
     .then(resp => resp.json())
     .then(resp => {
       console.log(resp);
       this.props.onSpotifyConfirm(resp.confirm_status)
+      this.props.confirm();
       this.setState({
         open: true,
       })

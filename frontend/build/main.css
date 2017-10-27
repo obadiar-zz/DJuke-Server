@@ -155,8 +155,8 @@ body {
 .thumbnail {
   margin: 9px;
   border-radius: 2px;
-  height: 80px;
-  width: 80px;
+  height: 150px;
+  width: 150px;
   align-self: flex-start;
   border: 1px solid black;
 }
@@ -181,4 +181,20 @@ body {
   margin-left: 30px;
   margin-right: 30px;
   margin-bottom: 30px;
+}
+
+.currentlyPlayingSong {
+  display: flex;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.song-progress-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: green;
+  width: 80%;
 }

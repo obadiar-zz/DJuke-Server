@@ -1,9 +1,8 @@
 import * as types from '../actions/types';
-
 const initialState = {
   user: '',
   playlist: '',
-  token: "BQBA6uP8UXuGWgS5lNEIPA3DOr4jr0_Z0sfoNkzeLE9T6NBf-adcgqxDxmCRT2MX4Ua8tAExTKaOvZ-Q3ggqvgqLk7uhGL_OM27Tt-825xZxeNNZFkNbCuxAqKYlws3Ke25MQ0c17dRKDpkllHJFX_Oxqh8NSv7HeHXo-a1E1HE8yXafwbeju6m1DjGY9HXVNLjRK3NqE_XXXaxGCQy9DdSDB3wjSNMqQ9NSmeh-2EpmaK3Q5H0HFpGOm43GY5PAjPHWvXbCEkOt3FON38JhqCnlrbayfdhUfVK6dDgGki09YnxahK86rHY0l30X8A0A8lIZ",
+  token: "",
   confirm_status: false,
 };
 
@@ -20,6 +19,9 @@ const spotifyReducer = (state = initialState, action) => {
       return newState;
     case types.SPOTIFY_CONFIRM:
       newState.confirm_status = action.confirm_status;
+      return newState;
+    case types.SPOTIFY_TOKEN:
+      newState.token = action.token;
       return newState;
     default:
       return state;
