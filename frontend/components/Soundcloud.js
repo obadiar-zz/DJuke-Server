@@ -9,7 +9,7 @@ var CLIENT_ID = '309011f9713d22ace9b976909ed34a80';
 const clientId = CLIENT_ID;
 const scPlayer = new SoundCloudAudio(CLIENT_ID);
 
-var playQueue = [];
+// var playQueue = [];
 
 class SoundCloud extends React.Component {
   constructor(props) {
@@ -17,41 +17,28 @@ class SoundCloud extends React.Component {
   }
 
   componentDidMount() {
-    setInterval(this.nextSong.bind(this), 5000)
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.queue.list.length !== nextProps.queue.list.length) {
-      console.log('SONG LIST:', nextProps.queue.list)
-      playQueue = nextProps.queue.list;
-      // if (this.props.queue.list.length === 0) {
-      //   this.playSong(playQueue[0])
-      // }
-    }
-  }
-
-  nextSong() {
-    const socket = io("http://localhost:8228")
-    if (playQueue.length !== 0) {
-      this.playSong(playQueue[0]);
-      this.props.setNewSongPlaying(playQueue[0])
-      socket.emit("REMOVE_SONG", playQueue[0]);
-    }
-    playQueue.shift();
+    this.socket = io("http://localhost:8228")
+    this.socket.on('SOUNDCLOUD_PLAY_SONG', function (data) {
+      console.log('RECEIVED SOUNDCLOUD PLAY EVENT')
+      this.playSong(data)
+    }.bind(this))
   }
 
   playSong(song) {
     var trackURL = song.url;
 
     scPlayer.resolve(trackURL, function (track) {
-      console.log('Resolving:', track.title + '..')
+      console.log('Resolving: "', track.title + '"..')
 
       // once track is loaded it can be played
+      this.socket.emit('SONG_STARTED', song)
       scPlayer.play();
-
       // stop playing track and keep silence
       // scPlayer.pause();
-
+      setTimeout(() => emitSongOver(), 6000)
+      var emitSongOver = function () {
+        this.socket.emit('SONG_OVER', song)
+      }.bind(this)
       // scPlayer.on('ended', function () {
       //   console.log(track.title, 'has finished playing.')
       //   playQueue.shift();

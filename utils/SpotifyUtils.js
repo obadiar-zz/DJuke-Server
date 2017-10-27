@@ -32,7 +32,7 @@ var spotifyData = {};
 */
 
 async function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
-  var playlist_uri = "spotify:user:"+user_id+":playlist:"+playlist_id;
+  var playlist_uri = "spotify:user:" + user_id + ":playlist:" + playlist_id;
 
   try {
     var response = await Spotify_API.getUserTracks(client_token, user_id, playlist_id);
@@ -41,7 +41,7 @@ async function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
     await Spotify_API.addTrack(client_token, user_id, playlist_id, songURI);
     await Spotify_API.nextSong(client_token);
     await Spotify_API.playSong(client_token);
-  } catch(err) {
+  } catch (err) {
     console.log("Error", err)
   }
 }
@@ -74,10 +74,10 @@ async function SpotifyUserInitialization(client_token, res) {
     response = await Spotify_API.getUserPlaylists(client_token, response);
     var playlists = response.data.items.filter(x => x.name === "djuke");
     if (!playlists) {
-        response = await Spotify_API.createPlaylist(client_token, user_id, "DJuke.io, how jukeboxes should be.", "djuke")
-        playlist_id = response.data.id;
+      response = await Spotify_API.createPlaylist(client_token, user_id, "DJuke.io, how jukeboxes should be.", "djuke")
+      playlist_id = response.data.id;
     } else {
-       playlist_id = playlists[0].id;
+      playlist_id = playlists[0].id;
     }
     response = await Spotify_API.getUserTracks(client_token, user_id, playlist_id);
     var toDelete = response.data.items.map((x, i) => x.track.uri);
@@ -104,17 +104,17 @@ async function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id
   try {
     var response = await Spotify_API.getPlayerInfo(client_token);
 
-    if(response.data.context !== undefined && response.data.context.uri === expected_uri){
-        spotifyData[user_id] = {
-          playlist_id,
-          token: client_token,
-          user_id
-        }
-        res.json({ confirm_status:  true});
-      } else {
-      res.json({ confirm_status:  false});
+    if (response.data.context !== undefined && response.data.context.uri === expected_uri) {
+      spotifyData[user_id] = {
+        playlist_id,
+        token: client_token,
+        user_id
+      }
+      res.json({ confirm_status: true });
+    } else {
+      res.json({ confirm_status: false });
     }
-  } catch(err) {
+  } catch (err) {
     console.log("Error", err);
   }
 
@@ -135,8 +135,8 @@ async function getSongInfo(client_token, song_id, cb) {
       thumbnail: response.data.album.images[0].url,
       id: song_id
     });
-  } catch(err) {
-    console.log("Error",err);
+  } catch (err) {
+    console.log("Error", err);
   }
 }
 
@@ -144,8 +144,11 @@ async function getSongInfo(client_token, song_id, cb) {
 function msToMinutes(ms) {
   var totalSeconds = parseInt(ms / 1000);
   var seconds = totalSeconds % 60;
-  if(seconds < 10) seconds = "0" + seconds;
-  var minutes = (totalSeconds - seconds) / 60;
+  if (String(seconds).length === 1) {
+    seconds = '0' + String(seconds);
+  }
+  var minutes = (totalSeconds - parseInt(seconds)) / 60;
+  console.log('' + minutes + ':' + seconds)
   return '' + minutes + ':' + seconds;
 }
 
