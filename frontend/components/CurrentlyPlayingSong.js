@@ -45,11 +45,11 @@ class CurrentlyPlayingSong extends React.Component {
   }
 
   handleOpen() {
-    this.setState({open: true});
+    this.setState({ open: true });
   };
 
   handleClose() {
-    this.setState({open: false});
+    this.setState({ open: false });
   };
 
   handleDelete(id) {
@@ -58,7 +58,7 @@ class CurrentlyPlayingSong extends React.Component {
       snack: true,
     })
     console.log('clicked');
-    this.state.socket.emit("REMOVE_SONG", {id,})
+    this.state.socket.emit("REMOVE_SONG", { id, })
   }
 
   handleRequestClose() {
@@ -77,7 +77,7 @@ class CurrentlyPlayingSong extends React.Component {
   }
 
   increment() {
-    this.setState({completed: this.state.completed + 1});
+    this.setState({ completed: this.state.completed + 1 });
   }
 
   render() {
@@ -94,78 +94,78 @@ class CurrentlyPlayingSong extends React.Component {
       />,
     ];
 
-    if( this.props.id !== this.state.cur_song_id){
+    if (this.props.id !== this.state.cur_song_id) {
       this.setState({
         cur_song_id: this.props.id,
         completed: 0,
       })
     }
-    console.log(this.state);
+    // console.log(this.state);
 
     // Calculate the time elapsed
-    var minutes = Math.floor(this.state.completed/60)
-    var seconds = this.state.completed%60
-    if( seconds < 10){
-      seconds = "0"+seconds
+    var minutes = Math.floor(this.state.completed / 60)
+    var seconds = this.state.completed % 60
+    if (seconds < 10) {
+      seconds = "0" + seconds
     }
-    var timeElapsed = minutes+":"+seconds;
-    const percentage = (this.state.completed/parseInt(this.props.duration)) * 100;
+    var timeElapsed = minutes + ":" + seconds;
+    const percentage = (this.state.completed / parseInt(this.props.duration)) * 100;
     return (
       <Paper
         className={'currentlyPlayingSong'}
         zDepth={4}
-        >
+      >
         <div
           className={'ugh-mediaPlayer'}
           onClick={() => this.handleOpen()}
-          >
+        >
           <div className="overall-container-mediaPlayer">
             <div className={'image-thumbNail-left'}>
-          <img
-            className={'thumbnail-mediaPlayer'}
-            src={this.props.thumbnail}
-          />
-        </div>
-        <div className={'everything-else-right'}>
-          <div className={'mediaTitle-container'}>
-            <h1 className={'mediaTitle'}>Now Playing</h1>
-          </div>
-          <div className={'mediaPlayer-container'}>
-            <div className={'mediaPlayer-container-top'}>
-              <span className={'title-mediaPlayer'}>
-                {this.props.title} <span className={'artist-mediaPlayer'}>
-                  {this.props.artist}
-                </span>
-              </span>
+              <img
+                className={'thumbnail-mediaPlayer'}
+                src={this.props.thumbnail}
+              />
+            </div>
+            <div className={'everything-else-right'}>
+              <div className={'mediaTitle-container'}>
+                <h1 className={'mediaTitle'}>Now Playing</h1>
+              </div>
+              <div className={'mediaPlayer-container'}>
+                <div className={'mediaPlayer-container-top'}>
+                  <span className={'title-mediaPlayer'}>
+                    {this.props.title} <span className={'artist-mediaPlayer'}>
+                      {this.props.artist}
+                    </span>
+                  </span>
 
-          <div >
-            <FlatButton
-              label="Pause"
-              primary={true}
-              className={'mediaPlayer-button'}
-              onClick={() => console.log("play")}
-            />
-            <FlatButton
-              label="Next"
-              primary={true}
-              className={'mediaPlayer-button'}
-              onClick={() => console.log("next")}
-            />
-          </div>
-          </div>
-          <div className={'mediaPlayer-container-middle'}>
-            <div className={'song-progress-container'}>
-              <LinearProgress mode="determinate" value={percentage}/>
-            </div>
-          </div>
-            <div className={'mediaPlayer-container-bottom'}>
-                <span className={'song-time-mediaPlayer'} >{timeElapsed}</span>
-                <span className={'song-time-mediaPlayer'} >{this.props.time}</span>
+                  <div >
+                    <FlatButton
+                      label="Pause"
+                      primary={true}
+                      className={'mediaPlayer-button'}
+                      onClick={() => console.log("play")}
+                    />
+                    <FlatButton
+                      label="Next"
+                      primary={true}
+                      className={'mediaPlayer-button'}
+                      onClick={() => console.log("next")}
+                    />
+                  </div>
+                </div>
+                <div className={'mediaPlayer-container-middle'}>
+                  <div className={'song-progress-container'}>
+                    <LinearProgress mode="determinate" value={percentage} />
+                  </div>
+                </div>
+                <div className={'mediaPlayer-container-bottom'}>
+                  <span className={'song-time-mediaPlayer'} >{timeElapsed}</span>
+                  <span className={'song-time-mediaPlayer'} >{this.props.time}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      </div>
 
       </Paper>
     );

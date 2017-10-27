@@ -13,7 +13,6 @@ var confirmExpectedPlaylistPlaying = spotify.confirmExpectedPlaylistPlaying;
 // for easy ip discover on a local network. We also initialize
 // the spotify user.
 router.get("/registerHostSpotify", function (req, res) {
-  console.log("Receieved request.");
 
   axios.post("https://rocky-brook-68243.herokuapp.com/register", {
     lan: ip.address()
@@ -26,9 +25,9 @@ router.get("/registerHostSpotify", function (req, res) {
 // This confirmation stage is necessary to make sure the user
 // is playing music on the right playlist.
 router.get("/continueHostSpotify", function (req, res) {
-  console.log("Receieved request.");
+  // console.log("Receieved request.");
   var token = "Bearer " + req.query.token;
-  console.log("REQ QUERYTOKEN", req.query.token);
+  // console.log("REQ QUERYTOKEN", req.query.token);
   var user_id = req.query.user;
   console.log("USERID", user_id);
   var playlist_id = req.query.playlist;

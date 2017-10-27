@@ -33,7 +33,7 @@ var spotifyData = {};
 */
 
 async function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
-  var playlist_uri = "spotify:user:"+user_id+":playlist:"+playlist_id;
+  var playlist_uri = "spotify:user:" + user_id + ":playlist:" + playlist_id;
 
   try {
     var response = await Spotify_API.getUserTracks(client_token, user_id, playlist_id);
@@ -42,7 +42,7 @@ async function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
     await Spotify_API.addTrack(client_token, user_id, playlist_id, songURI);
     await Spotify_API.nextSong(client_token);
     await Spotify_API.playSong(client_token);
-  } catch(err) {
+  } catch (err) {
     console.log("Error", err)
   }
 }
@@ -75,10 +75,10 @@ async function SpotifyUserInitialization(client_token, res) {
     response = await Spotify_API.getUserPlaylists(client_token, response);
     var playlists = response.data.items.filter(x => x.name === "djuke");
     if (!playlists) {
-        response = await Spotify_API.createPlaylist(client_token, user_id, "DJuke.io, how jukeboxes should be.", "djuke")
-        playlist_id = response.data.id;
+      response = await Spotify_API.createPlaylist(client_token, user_id, "DJuke.io, how jukeboxes should be.", "djuke")
+      playlist_id = response.data.id;
     } else {
-       playlist_id = playlists[0].id;
+      playlist_id = playlists[0].id;
     }
     response = await Spotify_API.getUserTracks(client_token, user_id, playlist_id);
     var toDelete = response.data.items.map((x, i) => x.track.uri);
@@ -105,17 +105,17 @@ async function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id
   try {
     var response = await Spotify_API.getPlayerInfo(client_token);
 
-    if(response.data.context !== undefined && response.data.context.uri === expected_uri){
-        spotifyData[user_id] = {
-          playlist_id,
-          token: client_token,
-          user_id
-        }
-        res.json({ confirm_status:  true});
-      } else {
-      res.json({ confirm_status:  false});
+    if (response.data.context !== undefined && response.data.context.uri === expected_uri) {
+      spotifyData[user_id] = {
+        playlist_id,
+        token: client_token,
+        user_id
+      }
+      res.json({ confirm_status: true });
+    } else {
+      res.json({ confirm_status: false });
     }
-  } catch(err) {
+  } catch (err) {
     console.log("Error", err);
   }
 
@@ -136,8 +136,8 @@ async function getSongInfo(client_token, song_id, cb) {
       thumbnail: response.data.album.images[0].url,
       id: song_id
     });
-  } catch(err) {
-    console.log("Error",err);
+  } catch (err) {
+    console.log("Error", err);
   }
 }
 
@@ -145,15 +145,18 @@ async function getSongInfo(client_token, song_id, cb) {
 function msToMinutes(ms) {
   var totalSeconds = parseInt(ms / 1000);
   var seconds = totalSeconds % 60;
-  if(seconds < 10) seconds = "0" + seconds;
-  var minutes = (totalSeconds - seconds) / 60;
+  if (String(seconds).length === 1) {
+    seconds = '0' + String(seconds);
+  }
+  var minutes = (totalSeconds - parseInt(seconds)) / 60;
+  console.log('' + minutes + ':' + seconds)
   return '' + minutes + ':' + seconds;
 }
 
 // We need a way to "initiate" a playlist_id,
 // this is called everytime the queue goes from
 // 0 to n.
-function firstSong(){
+function firstSong() {
   console.log("First song called.");
   var user_id = Object.keys(spotifyData)[0];
   var playlist_id = spotifyData[user_id].playlist_id;
@@ -161,30 +164,30 @@ function firstSong(){
   addNextAndPlay(user_id, playlist_id, token, true);
 }
 
-function addNextAndPlay(user_id, playlist_id, token, first){
+function addNextAndPlay(user_id, playlist_id, token, first) {
 
-  if(first) {
-    setTimeout(function(){
+  if (first) {
+    setTimeout(function () {
       addNextAndPlay(user_id, playlist_id, token, false);
-    },(1)*1000)
-  }else{
+    }, (1) * 1000)
+  } else {
     var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
     var nextSong = queue.pop();
 
-    if(queue.length || nextSong){
+    if (queue.length || nextSong) {
       console.log("NEXT SONG IN QUEUE");
 
-      var song_uri = "spotify:track:"+nextSong.id;
-      localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
+      var song_uri = "spotify:track:" + nextSong.id;
+      localStorage.setItem("SongQueue", JSON.stringify({ list: queue }));
       var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
       addTrackToPlaylist(user_id, playlist_id, token, song_uri)
       console.log(queue.length, song_uri);
-        setTimeout(function(){
-          var user_id = Object.keys(spotifyData)[0];
-          var playlist_id = spotifyData[user_id].playlist_id;
-          var token = spotifyData[user_id].token;
-          addNextAndPlay(user_id, playlist_id, token, false);
-        },(nextSong.durationS)*1000)
+      setTimeout(function () {
+        var user_id = Object.keys(spotifyData)[0];
+        var playlist_id = spotifyData[user_id].playlist_id;
+        var token = spotifyData[user_id].token;
+        addNextAndPlay(user_id, playlist_id, token, false);
+      }, (10) * 1000)
     } else {
       console.log("NOTHING IN QUEUE");
       eventListener.emit("spotify_done", {});
