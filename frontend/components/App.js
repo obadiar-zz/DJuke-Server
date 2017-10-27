@@ -27,7 +27,7 @@ class App extends React.Component {
     })
   }
 
-  componentWillRecieveProps(props) {
+  componentWillReceiveProps(props) {
     console.log('STATE:', this.props.currentlyPlayingSong)
   }
 
