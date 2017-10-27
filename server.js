@@ -114,7 +114,10 @@ io.on('connection', function (socket) {
         id = socket.id;
         socket.emit('SUCCESS', 'CONNECTED');
     });
-
+    socket.on('RECEIVE_TOKEN', function() {
+      console.log("CHECK", localStorage.getItem('accessToken'));
+      socket.emit('SEND_APP_TOKEN', localStorage.getItem('accessToken'));
+    })
     socket.on('ADD_SONG', function (data) {
         console.log("SONG ADDED");
         SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
