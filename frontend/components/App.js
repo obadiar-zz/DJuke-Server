@@ -28,10 +28,17 @@ class App extends React.Component {
     return (
       <div className={'container'}>
         <Header />
-        <Body />
+        <Body queue={this.props.songList} currentlyPlaying={this.props.currentlyPlaying} />
         <Footer />
       </div>
     );
+  }
+};
+
+const mapStateToProps = (state) => {
+  return {
+    songList: state.songList,
+    currentlyPlaying: state.currentlyPlaying
   }
 };
 
@@ -41,4 +48,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

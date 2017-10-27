@@ -9,6 +9,7 @@ const SCUtils = require('./utils/SCUtils')
 const routes = require('./backend/routes');
 const Queue = require('./backend/queue');
 const spotify = require('./backend/spotifyRoutes').router;
+// const soundcloud = require('./backend/soundcloudRoutes').router;
 const spotifyFirstSong = require('./backend/spotifyRoutes').firstSong;
 const spotifyEventListener = require('./backend/spotifyRoutes').eventListener;
 var localStorage = require('localStorage');
@@ -32,7 +33,7 @@ spotifyEventListener.on("spotify_done", function (data) {
     firstSong = true;
 });
 
-const SPOTIFY_TOKEN = "Bearer " + "BQBNbPtZj2qNSKp_3z4Ir5UfWktp3O8R3VVERuZz2Dmk-YC7WjxGidr9It9soFVtMoQ1Y39ViQTQtiu7GxLXzMD1KoLGCxAWcOSR6JuQns5Q9iJrDpXmRRRsncOI1R4YJ5_34_NeTsA829PXIixiJ3277tEDJnsgZoRVwd7km4XRWdKIACjeL80HOf32qDPLg2mYDnjYvJyF3PAttY-cTpVxClS-wn3-WbWo-0y9s9GQy4C9ohbolkDXOj9BzUjAiPNRp0lnDmEsKtt56Xi98_-r_4blF0iE9A-SKE2kXwvqBjmaPA91ZtG4YiSMu2-NYshjuHM"
+const SPOTIFY_TOKEN = "Bearer " + "BQBA6uP8UXuGWgS5lNEIPA3DOr4jr0_Z0sfoNkzeLE9T6NBf-adcgqxDxmCRT2MX4Ua8tAExTKaOvZ-Q3ggqvgqLk7uhGL_OM27Tt-825xZxeNNZFkNbCuxAqKYlws3Ke25MQ0c17dRKDpkllHJFX_Oxqh8NSv7HeHXo-a1E1HE8yXafwbeju6m1DjGY9HXVNLjRK3NqE_XXXaxGCQy9DdSDB3wjSNMqQ9NSmeh-2EpmaK3Q5H0HFpGOm43GY5PAjPHWvXbCEkOt3FON38JhqCnlrbayfdhUfVK6dDgGki09YnxahK86rHY0l30X8A0A8lIZ"
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -51,16 +52,15 @@ localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
 
 app.use('/', routes);
 app.use('/', spotify);
+// app.use('/', soundcloud);
 
 io.on('connection', function (socket) {
-    console.log("Connection made");
     g_socket = io;
 
     var id;
     socket.emit('QUEUE_UPDATED', SongQueue);
 
     socket.on('CONNECT', function () {
-        console.log("Connection heard");
         id = socket.id;
         socket.emit('SUCCESS', 'CONNECTED');
     });
@@ -79,6 +79,7 @@ io.on('connection', function (socket) {
                 payment: data.payment || 0,
                 requestor_id: socket.id,
                 thumbnail: result.thumbnail,
+                url: result.url,
                 time: String(new Date())
             }
             if (!SongQueue.addSong(newSong)) {
@@ -89,15 +90,17 @@ io.on('connection', function (socket) {
             SongQueue.sort();
             localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
             io.emit('QUEUE_UPDATED', SongQueue);
-            if (firstSong) {
+            if (firstSong && data.type === 'spotify') {
                 spotifyFirstSong()
                 firstSong = false;
             }
         }
         if (data.type === 'spotify') {
             SpotifyUtils.getSongInfo(SPOTIFY_TOKEN, data.id, callback)
-        } else {
+        } else if (data.type === 'soundcloud') {
             SCUtils.getSongInfo(data.id, callback)
+        } else {
+            socket.emit('ERROR', 'SONG_TYPE_UNKNOWN');
         }
     })
 

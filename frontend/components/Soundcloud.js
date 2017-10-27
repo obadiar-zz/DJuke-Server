@@ -1,94 +1,67 @@
 import React from 'react';
-import { connect } from 'react-redux';
 
-import RaisedButton from 'material-ui/RaisedButton';
-import {
-  Card,
-  CardActions,
-  CardHeader,
-  CardText
-} from 'material-ui/Card';
-import Paper from 'material-ui/Paper';
+// import components to render
+import SoundCloudAudio from 'soundcloud-audio';
+import io from 'socket.io-client';
 
-import { spotifyMount } from '../actions/index';
-import { spotifyConfirm } from '../actions/index';
+var CLIENT_ID = '309011f9713d22ace9b976909ed34a80';
 
-class Soundcloud extends React.Component {
+const clientId = CLIENT_ID;
+const scPlayer = new SoundCloudAudio(CLIENT_ID);
+
+var playQueue = [];
+
+class SoundCloud extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  // componentWillMount() {
-  //   fetch('http://localhost:3000/?token=' + this.props.spotify.token, {
-  //     method: 'get',
-  //   })
-  //   .then(resp => resp.json())
-  //   .then(resp => {
-  //     this.props.onSpotifyMount(resp.user, resp.playlist)
-  //   })
-  //   .catch(error => {console.log(error)})
-  // }
-  //
-  // handleClick() {
-  //   console.log('click');
-  //   fetch('http://localhost:3000/continue/?token=' + this.props.spotify.token + '&user=' + this.props.spotify.user + '&playlist=' + this.props.spotify.playlist, {
-  //     method: 'get',
-  //   })
-  //   .then(resp => resp.json())
-  //   .then(resp => {
-  //     console.log(resp);
-  //     this.props.onSpotifyConfirm(resp.confirm_status)
-  //   })
-  //   .catch(error => {console.log(error)})
-  // }
+  componentDidMount() {
+    setInterval(this.nextSong.bind(this), 5000)
+  }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.queue.list.length !== nextProps.queue.list.length) {
+      console.log('SONG LIST:', nextProps.queue.list)
+      playQueue = nextProps.queue.list;
+      // if (this.props.queue.list.length === 0) {
+      //   this.playSong(playQueue[0])
+      // }
+    }
+  }
+
+  nextSong() {
+    const socket = io("http://localhost:8228")
+    if (playQueue.length !== 0) {
+      this.playSong(playQueue[0]);
+      socket.emit("REMOVE_SONG", playQueue[0]);
+    }
+    playQueue.shift();
+  }
+
+  playSong(song) {
+    var trackURL = song.url;
+
+    scPlayer.resolve(trackURL, function (track) {
+      console.log('Resolving:', track.title + '..')
+
+      // once track is loaded it can be played
+      scPlayer.play();
+
+      // stop playing track and keep silence
+      // scPlayer.pause();
+
+      // scPlayer.on('ended', function () {
+      //   console.log(track.title, 'has finished playing.')
+      //   playQueue.shift();
+      //   if (playQueue.length !== 0)
+      //     this.playSong(playQueue[0]);
+      // }.bind(this))
+    }.bind(this));
+  }
   render() {
-    return (
-      <Paper
-        className="card"
-        zDepth={4}
-        >
-        <Card>
-          <CardHeader
-            title="Soundcloud"
-            subtitle={this.props.spotify.confirm_status ?
-              "Confirmed" :
-              "Please press the play button."
-            }
-          />
-          <iframe
-            id="soundcloud"
-            className={'widget'}
-            scrolling="no"
-            src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/34019569&amp;color=0066cc"
-            frameBorder="0"
-            allowTransparency={true}
-          />
-          <CardActions>
-            <RaisedButton
-              label="Connect to Soundcloud"
-              primary={true}
-              width="300"
-              onClick={() => this.handleClick()}
-            />
-          </CardActions>
-        </Card>
-      </Paper>
-    );
+    return null
   }
 };
 
-const mapStateToProps = (state) => {
-  return {
-    spotify: state.spotify,
-  }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onSpotifyMount: (user, playlist) => dispatch(spotifyMount(user, playlist)),
-    onSpotifyConfirm: (confirm_status) => dispatch(spotifyConfirm(confirm_status)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Soundcloud);
+export default SoundCloud;

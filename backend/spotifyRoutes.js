@@ -13,9 +13,6 @@ var next = spotify.nextSong;
 var localStorage = require('localStorage');
 
 
-
-var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
-
 // create EventEmitter object
 const EventEmitter = require('events');
 var eventListener = new EventEmitter();
@@ -23,22 +20,22 @@ var eventListener = new EventEmitter();
 
 var spotifyData = {};
 
-router.get("/soundcloud", function(req, res){
+router.get("/soundcloud", function (req, res) {
   res.send(req);
 })
 
-router.get("/registerHostSpotify", function(req, res){
+router.get("/registerHostSpotify", function (req, res) {
   console.log("Receieved request.");
 
   axios.post("https://rocky-brook-68243.herokuapp.com/register", {
-      lan: ip.address()
+    lan: ip.address()
   })
-  
+
   var token = "Bearer " + req.query.token;
   generic(token, res);
 })
 
-router.get("/continueHostSpotify", function(req, res){
+router.get("/continueHostSpotify", function (req, res) {
   console.log("Receieved request.");
   var token = "Bearer " + req.query.token;
   var user_id = req.query.user;
@@ -50,10 +47,10 @@ router.get("/continueHostSpotify", function(req, res){
     token,
     user_id
   }
-  confirmExpectedPlaylistPlaying(token, user_id, playlist_id, playlist_uri,res);
+  confirmExpectedPlaylistPlaying(token, user_id, playlist_id, playlist_uri, res);
 })
 
-function firstSong(){
+function firstSong() {
   console.log("First song called.");
   var user_id = Object.keys(spotifyData)[0];
   var playlist_id = spotifyData[user_id].playlist_id;
@@ -61,35 +58,35 @@ function firstSong(){
   addNextAndPlay(user_id, playlist_id, token, true);
 }
 
-function addNextAndPlay(user_id, playlist_id, token, first){
-  if(first) {
-    setTimeout(function(){
+function addNextAndPlay(user_id, playlist_id, token, first) {
+  if (first) {
+    setTimeout(function () {
       var user_id = Object.keys(spotifyData)[0];
       var playlist_id = spotifyData[user_id].playlist_id;
       var token = spotifyData[user_id].token;
       addNextAndPlay(user_id, playlist_id, token, false);
-    },(3)*1000)
-  }else{
+    }, (3) * 1000)
+  } else {
     var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
     var nextSong = queue.pop();
     // localStorage.setItem("currentlyPlaying", JSON.stringify(nextSong))
     console.log("SONG UP NEXT!!!!! : ", nextSong);
-    var song_uri = "spotify:track:"+nextSong.id;
+    var song_uri = "spotify:track:" + nextSong.id;
 
     eventListener.emit("nextSong_Spotify", {
       currentlyPlaying: nextSong,
       list: queue
     });
-    localStorage.setItem("SongQueue", JSON.stringify({list: queue}));
+    localStorage.setItem("SongQueue", JSON.stringify({ list: queue }));
     var queue = JSON.parse(localStorage.getItem("SongQueue")).list;
     addTrack(user_id, playlist_id, token, song_uri)
 
-    setTimeout(function(){
+    setTimeout(function () {
       var user_id = Object.keys(spotifyData)[0];
       var playlist_id = spotifyData[user_id].playlist_id;
       var token = spotifyData[user_id].token;
       addNextAndPlay(user_id, playlist_id, token, false);
-    },(45)*1000)
+    }, (nextSong.durationS - 1) * 1000)
   }
 
 
