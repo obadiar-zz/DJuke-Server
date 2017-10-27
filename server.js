@@ -105,7 +105,8 @@ io.on('connection', function (socket) {
     g_socket = io;
 
     var id;
-    socket.emit('SEND_TOKEN', localStorage.getItem('accessToken'));
+    socket.emit('SEND_TOKEN', localStorage.getItem('accessToken'))
+    console.log('SENDING THE TOKEN:', localStorage.getItem('accessToken'));
     socket.emit('QUEUE_UPDATED', SongQueue);
 
     socket.on('CONNECT', function () {
