@@ -28,7 +28,9 @@ router.get("/registerHostSpotify", function(req, res){
 router.get("/continueHostSpotify", function(req, res){
   console.log("Receieved request.");
   var token = "Bearer " + req.query.token;
+  console.log("REQ QUERYTOKEN", req.query.token);
   var user_id = req.query.user;
+  console.log("USERID", user_id);
   var playlist_id = req.query.playlist;
   var playlist_uri = "spotify:user:" + user_id + ":playlist:" + playlist_id;
 

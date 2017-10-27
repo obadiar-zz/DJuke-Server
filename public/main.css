@@ -202,6 +202,16 @@ body {
   margin-bottom: 30px;
 }
 
+
+.spotify-login {
+  text-align: center;
+  background: black;
+  padding: 10px;
+  border-radius: 4px;
+  color: white;
+  text-decoration: none;
+  font-family: 'Roboto';
+}
 .mediaPlayer-container {
   background-color: white;
   width: 98%;
@@ -268,4 +278,5 @@ body {
 
 .everything-else-right {
   flex: 5;
+
 }
