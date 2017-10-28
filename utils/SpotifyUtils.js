@@ -4,16 +4,13 @@ var Spotify_API = require('./SpotifyAPI.js')
 // Default song used for confirming connection to Spotify.
 var default_song_uri = "spotify:track:6rPO02ozF3bM7NnOV4h6s2";
 
-// Event emitter to establish means of communication with the
-// central server, queue, and state logic.
-const EventEmitter = require('events');
-var eventListener = new EventEmitter();
-
-eventListener.on('doorOpen', () => console.log("This is working!!!!"));
-
 // Construct a mapping of user_id to pertinent user information
 // including a) client token b) playlist id
 var spotifyData = {};
+
+function eventListener(songObj, songAddedCB, songOverCB) {
+  addNextAndPlay(songObj, songAddedCB, songOverCB)
+}
 
 /*
   Adding a track to a spotify playlist is not as straight forward
@@ -32,6 +29,7 @@ var spotifyData = {};
 */
 
 async function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
+  console.log('HELLO THIS IS A FUNCTION~!!!!')
   var playlist_uri = "spotify:user:" + user_id + ":playlist:" + playlist_id;
 
   try {
@@ -42,7 +40,7 @@ async function addTrackToPlaylist(user_id, playlist_id, client_token, songURI) {
     await Spotify_API.nextSong(client_token);
     await Spotify_API.playSong(client_token);
   } catch (err) {
-    console.log("Error", err)
+    console.log("Error", err.response)
   }
 }
 
@@ -85,7 +83,7 @@ async function SpotifyUserInitialization(client_token, res) {
     await Spotify_API.addTrack(client_token, user_id, playlist_id, default_song_uri);
     res.json({ user: user_id, playlist: playlist_id });
   } catch (err) {
-    console.log("Error", err);
+    // console.log("Error", err);
   }
 }
 
@@ -115,7 +113,7 @@ async function confirmExpectedPlaylistPlaying(client_token, user_id, playlist_id
       res.json({ confirm_status: false });
     }
   } catch (err) {
-    console.log("Error", err);
+    // console.log("Error", err);
   }
 
 }
@@ -136,7 +134,7 @@ async function getSongInfo(client_token, song_id, cb) {
       id: song_id
     });
   } catch (err) {
-    console.log("Error", err);
+    // console.log("Error", err);
   }
 }
 
@@ -152,16 +150,21 @@ function msToMinutes(ms) {
   return '' + minutes + ':' + seconds;
 }
 
-function addNextAndPlay(song_object){
-      var user_id = Object.keys(spotifyData)[0];
-      var playlist_id = spotifyData[user_id];
-      var token = spotifyData[user_id];
-      var song_uri = "spotify:track:"+song_object.id;
+function addNextAndPlay(song_object, songAddedCB, songOverCB) {
+  var user_id = Object.keys(spotifyData)[0];
+  var playlist_id = spotifyData[user_id].playlist_id;
+  var token = spotifyData[user_id].token;
+  console.log(song_object)
+  var song_uri = "spotify:track:" + song_object.id;
+  console.log('Playing SPOTIFY:', song_uri)
 
-      addTrackToPlaylist(user_id, playlist_id, token, song_uri)
-        setTimeout(function(){
-
-        },(nextSong.durationS-2)*1000)
+  addTrackToPlaylist(user_id, playlist_id, token, song_uri)
+  songAddedCB(song_object);
+  setTimeout(function () {
+    console.log('SENDING A SPOTIFY SONG_OVER')
+    Spotify_API.pauseSong(token);
+    songOverCB(song_object);
+  }, (5) * 1000)
 }
 
 module.exports = {

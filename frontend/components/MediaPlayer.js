@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import io from 'socket.io-client';
 
 import RaisedButton from 'material-ui/RaisedButton';
 import {
@@ -21,7 +22,7 @@ class MediaPlayer extends React.Component {
   }
 
   render() {
-    // console.log(this.props.currentlyPlaying);
+    console.log(this.props.currentlyPlaying);
     var currentlyPlaying = this.props.currentlyPlaying !== "null" ? this.props.currentlyPlaying : {
       title: "Waiting for first track!",
       artists: " ",

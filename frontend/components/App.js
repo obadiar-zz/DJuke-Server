@@ -20,18 +20,24 @@ class App extends React.Component {
   componentDidMount() {
     const socket = io("http://localhost:8228")
     socket.on("QUEUE_UPDATED", data => {
-      if (data.currentlyPlaying) {
-        this.props.onNewSongUpdate(data.currentlyPlaying)
-      }
+      // if (data.currentlyPlaying) {
+      //   this.props.onNewSongUpdate(data.currentlyPlaying)
+      // }
       this.props.onUpdateQueue(data)
     })
+    socket.on('SOUNDCLOUD_PLAY_SONG', function (data) {
+      this.props.onNewSongUpdate(data)
+    }.bind(this))
+    socket.on('SPOTIFY_PLAY_SONG', function (data) {
+      this.props.onNewSongUpdate(data)
+    }.bind(this))
   }
 
   render() {
     return (
       <div className={'container'}>
         <Header />
-        <Body queue={this.props.songList} currentlyPlayingSong={this.props.currentlyPlayingSong} setNewSongPlaying={(song) => this.props.onNewSongUpdate(song)} />
+        <Body />
         <Footer />
       </div>
     );

@@ -35,7 +35,7 @@ class Body extends React.Component {
     return (
       <div className={'container body'}>
         <div className='clients'>
-          <SoundCloud queue={this.props.queue} currentlyPlayingSong={this.props.currentlyPlayingSong} setNewSongPlaying={(song) => this.props.setNewSongPlaying(song)} />
+          <SoundCloud />
           {
             this.state.spotifyConfirmed ? <MediaPlayer /> : <Spotify token={this.props.token} confirm={this.spotifyConfirm.bind(this)} />
           }
