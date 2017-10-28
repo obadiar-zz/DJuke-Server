@@ -54,25 +54,6 @@ passport.serializeUser(function (profile, done) {
 passport.deserializeUser(function (profile, done) {
     done(null, profile);
 })
-var firstSong = true;
-var g_socket;
-
-spotifyEventListener.on("nextSong_Spotify", function (data) {
-    // process data when someEvent occurs
-
-    console.log("Broadcast new song added");
-    console.log(data);
-    g_socket.emit('QUEUE_UPDATED', {
-        currentlyPlaying: data.currentlyPlaying,
-        list: data.list
-    });
-});
-
-spotifyEventListener.on("spotify_done", function (data) {
-    // process data when someEvent occurs
-    firstSong = true;
-});
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -96,14 +77,11 @@ app.use(function (req, res, next) {
 
 var SongQueue = new Queue();
 var isPlaying = false;
-localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
 
 app.use('/', routes);
 app.use('/', spotify);
 
 io.on('connection', function (socket) {
-    g_socket = io;
-
     var id;
     socket.emit('SEND_TOKEN', localStorage.getItem('accessToken'))
     // console.log('SENDING THE TOKEN:', localStorage.getItem('accessToken'));
@@ -120,7 +98,6 @@ io.on('connection', function (socket) {
     })
     socket.on('ADD_SONG', function (data) {
         console.log("SONG ADDED");
-        SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
         function callback(result) {
             var newSong = {
                 title: result.title,
@@ -142,7 +119,6 @@ io.on('connection', function (socket) {
                 socket.emit('SUCCESS', 'SONG_ADDED');
             }
             SongQueue.sort();
-            localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
             io.emit('QUEUE_UPDATED', SongQueue);
             if (!isPlaying) {
                 isPlaying = true;
@@ -150,13 +126,11 @@ io.on('connection', function (socket) {
                     console.log('SENDING SOUNDCLOUD PLAY EVENT!')
                     io.emit('SOUNDCLOUD_PLAY_SONG', newSong)
                 } else {
-                    io.emit('SPOTIFY_PLAY_SONG', newSong)
+                    io.emit('SPOTIFY_PLAY_SONG', newSong);
+                    console.log('SENDING SPOTIFY PLAY EVENT!')
+                    spotifyEventListener(newSong, spotifySongAddedCallback, spotifySongOverCallback);
                 }
             }
-            // if (firstSong && data.type === 'spotify') {
-            //     spotifyFirstSong()
-            //     firstSong = false;
-            // }
         }
         if (data.type === 'spotify') {
             const SPOTIFY_TOKEN = "Bearer " + localStorage.getItem('accessToken');
@@ -170,67 +144,86 @@ io.on('connection', function (socket) {
 
 
     socket.on('SONG_OVER', function (data) {
-        console.log('SONG_OVER RECEIVED!!')
-        SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
-        SongQueue.removeSong(data.id);
+        console.log('SC SONG_OVER RECEIVED:', data.title)
+        // SongQueue.removeSong(data.id);
         if (SongQueue.list.length === 0) {
             isPlaying = false;
         }
         SongQueue.sort();
-        localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
         io.emit('QUEUE_UPDATED', SongQueue);
         if (SongQueue.list.length !== 0) {
             var newSong = SongQueue.list[SongQueue.list.length - 1]
+
             if (newSong.type === 'soundcloud') {
-                io.emit('SOUNDCLOUD_PLAY_SONG', newSong)
+                io.emit('SOUNDCLOUD_PLAY_SONG', newSong);
             } else {
-                io.emit('SPOTIFY_PLAY_SONG', newSong)
+                io.emit('SPOTIFY_PLAY_SONG', newSong);
+                spotifyEventListener(newSong, spotifySongAddedCallback, spotifySongOverCallback);
             }
         }
     });
 
+    function spotifySongOverCallback(data) {
+        console.log('SPOTIFY SONG_OVER RECEIVED:', data.title)
+        // SongQueue.removeSong(data.id);
+        if (SongQueue.list.length === 0) {
+            isPlaying = false;
+        }
+        SongQueue.sort();
+        io.emit('QUEUE_UPDATED', SongQueue);
+        if (SongQueue.list.length !== 0) {
+            console.log('THERE ARE MORE SONGS TO PLAY');
+            var newSong = SongQueue.list[SongQueue.list.length - 1]
+            if (newSong.type === 'soundcloud') {
+                io.emit('SOUNDCLOUD_PLAY_SONG', newSong);
+            } else {
+                io.emit('SPOTIFY_PLAY_SONG', newSong);
+                spotifyEventListener(newSong, spotifySongAddedCallback, spotifySongOverCallback);
+            }
+        }
+    }
+
     socket.on('SONG_STARTED', function (data) {
-        SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
+        console.log('SC SONG STARTED:', data.title)
         SongQueue.removeSong(data.id);
         SongQueue.sort();
-        localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
         io.emit('QUEUE_UPDATED', SongQueue);
     });
 
+    function spotifySongAddedCallback(data) {
+        console.log('SPOTIFY SONG STARTED:', data.title)
+        SongQueue.removeSong(data.id);
+        SongQueue.sort();
+        io.emit('QUEUE_UPDATED', SongQueue);
+    };
+
     socket.on('REMOVE_SONG', function (data) {
-        SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
         SongQueue.removeSong(data.id);
         socket.emit('SUCCESS', 'SONG_REMOVED')
         if (songQueue.list.length === 0) {
             isPlaying = false;
         }
         SongQueue.sort();
-        localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
         io.emit('QUEUE_UPDATED', SongQueue);
         console.log(SongQueue);
     })
 
     socket.on('UPVOTE_SONG', function (data) {
-        var currentlyPlaying = JSON.parse(localStorage.getItem("currentlyPlaying"));
 
-        SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
         if (SongQueue.toggleUpvote(id, data.id)) {
             socket.emit('SUCCESS', 'SONG_UPVOTE_ADDED')
         } else {
             socket.emit('SUCCESS', 'SONG_UPVOTE_REMOVED')
         }
         SongQueue.sort();
-        localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
         io.emit('QUEUE_UPDATED', SongQueue);
         console.log(SongQueue);
     })
 
     socket.on('PAY_SONG', function (data) {
-        SongQueue.list = JSON.parse(localStorage.getItem("SongQueue")).list;
         SongQueue.addPayment(data.id, data.amount);
         socket.emit('SUCCESS', 'SONG_PAYMENT_UPDATED');
         SongQueue.sort();
-        localStorage.setItem("SongQueue", JSON.stringify(SongQueue));
         io.emit('QUEUE_UPDATED', SongQueue);
         console.log(SongQueue);
     })
